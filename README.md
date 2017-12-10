@@ -1,9 +1,8 @@
 # Identity word prediction
 
-## [Web app](http://ec2-54-153-24-152.us-west-1.compute.amazonaws.com:8899/)
-## Code details
+## Code
 ### Layout:
-* `identity_data_processor.py`: the data processor used for processing the models so that they can be used by PyTorch.
+*  `identity_data_processor.py`: the data processor used for processing the models so that they can be used by PyTorch.
 *  `predict_identity_char_model.py`: contains the logic used to predict the sequence.
 *  `push_documentation.sh`: pushes the documentation in the `html` directory into githubs gh pages.
 *  `requirements.txt`: the python requriements used for setup.
@@ -34,6 +33,7 @@ There are other python modules which we have used to build this project. To inst
 ```
 
 ### Web app
+#### [Try online](http://ec2-54-153-24-152.us-west-1.compute.amazonaws.com:8899/)
 #### Run locally (default)
 Runs the web app locally with the default pre-trained models on port 8899 ([http://0.0.0.0:8899/](http://0.0.0.0:8899/))
 ```
@@ -47,8 +47,6 @@ In order for training to occur, the pre-processed data must be available. Curren
 *  Training data: `train.txt`
 *  Validation data: `valid.txt`
 *  Test data: `test.txt`
-
-Training will rely on
 
 ##### Generic character rnn-lstm model
 Trains a two layer model using the previously pre-processed [Movie Dialog Corpus](https://www.kaggle.com/Cornell-University/movie-dialog-corpus).
@@ -120,6 +118,7 @@ In order to predict, there are two files that are needed that are constructed du
 *  Model: The model to use for prediction. (e.g. `homer_simpson_char_lstm.pt`, `sherlock_holmes_char_lstm.pt` or `generic_identity_char_lstm.pt`)
 
 ##### Characters
+Predicts a defined number of characters `count` (6), given the `context` and a given `temperature`.
 ```
 python3 predict_identity_char_model.py \
     --add_prefix_eos \
@@ -130,6 +129,7 @@ python3 predict_identity_char_model.py \
     --count 6
 ```
 ##### Words
+Predicts a defined number of words `count` (5), given the `context` and a given `temperature`.
 ```
 python3 predict_identity_char_model.py \
     --add_prefix_eos \
@@ -143,6 +143,7 @@ python3 predict_identity_char_model.py \
 ```
 
 ##### Sentences
+Predicts a sentence, given the `context` and a given `temperature`. The `<eos>` sequence is considered the end of the sequence or terminating sentence character.
 ```
 python3 predict_identity_char_model.py \
     --add_prefix_eos \
