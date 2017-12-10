@@ -28,14 +28,14 @@ Go to the the Python [website](https://www.python.org/) and follow the instructi
 #### PyTorch
 Go to to the PyTorch [website](http://pytorch.org/) and follow the instructions to install using pip. If you want to reproduce exactly with the version that we used while building this project you should install version 0.2.0 which is available for download in the  [previous versions section](http://pytorch.org/previous-versions/).
 
-### Other
+#### Other
 There are other python modules which we have used to build this project. To install these the following command can be executed:
 ```
 ./setup.sh
 ```
 
 ### Web app
-#### [Try online](http://ec2-54-153-24-152.us-west-1.compute.amazonaws.com:8899/)
+#### [Try online](https://goo.gl/maEFuL)
 #### Run locally (default)
 Runs the web app locally with the default pre-trained models on port 8899 ([http://0.0.0.0:8899/](http://0.0.0.0:8899/))
 ```
