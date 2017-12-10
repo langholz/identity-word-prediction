@@ -2,6 +2,8 @@
 ## Summary
 Have you ever wanted to sound like someone else? How about texting to your family, friends or anyone else while sounding like one of your favorite characters? Well then, this is the project for you! Through this project we present a way in which we can adapt a general neural language model and personalize it to sound like a given personality or character (e.g. Homer Simpson or Sherlock Holmes). We do this by first training a generic nerual language model (NLM) and then extending it by adding extra layers at the end and freezing the generic weights during training.
 
+Checkout the project [presentation](https://langholz.github.io/identity-word-prediction/presentation.pdf) (for general information), the [details](https://goo.gl/AdbvmA) section (for identity models specific information)  and/or [about](https://goo.gl/aiiDTe) (for other specifics) in the demo web app.
+
 ## Code
 ### Layout:
 *  `identity_data_processor.py`: the data processor used for processing the models so that they can be used by PyTorch.
