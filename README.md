@@ -1,4 +1,6 @@
 # Identity word prediction
+## Summary
+Have you ever wanted to sound like someone else? How about texting to your family, friends or anyone else while sounding like one of your favorite characters? Well then, this is the project for you! Through this project we present a way in which we can adapt a general neural language model and personalize it to sound like a given personality or character (e.g. Homer Simpson or Sherlock Holmes). We do this by first training a generic nerual language model (NLM) and then extending it by adding extra layers at the end and freezing the generic weights during training.
 
 ## Code
 ### Layout:
