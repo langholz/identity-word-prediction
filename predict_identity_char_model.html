@@ -39,8 +39,78 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="predict-identity-char-model-module">
-<h1>predict_identity_char_model module<a class="headerlink" href="#predict-identity-char-model-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-predict_identity_char_model">
+<span id="predict-identity-char-model-module"></span><h1>predict_identity_char_model module<a class="headerlink" href="#module-predict_identity_char_model" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="predict_identity_char_model.bool_from_string">
+<code class="descclassname">predict_identity_char_model.</code><code class="descname">bool_from_string</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predict_identity_char_model.html#bool_from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#predict_identity_char_model.bool_from_string" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="predict_identity_char_model.file_exists">
+<code class="descclassname">predict_identity_char_model.</code><code class="descname">file_exists</code><span class="sig-paren">(</span><em>file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predict_identity_char_model.html#file_exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#predict_identity_char_model.file_exists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines whether or not a file exists.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="predict_identity_char_model.load">
+<code class="descclassname">predict_identity_char_model.</code><code class="descname">load</code><span class="sig-paren">(</span><em>model_file_path</em>, <em>use_cuda</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predict_identity_char_model.html#load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#predict_identity_char_model.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads an RNN model from a given file path.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="predict_identity_char_model.main">
+<code class="descclassname">predict_identity_char_model.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/predict_identity_char_model.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#predict_identity_char_model.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>The main entry point for prediction.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="predict_identity_char_model.parse_arguments">
+<code class="descclassname">predict_identity_char_model.</code><code class="descname">parse_arguments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/predict_identity_char_model.html#parse_arguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#predict_identity_char_model.parse_arguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses the command line arguments and assigns default values if provided.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="predict_identity_char_model.predict">
+<code class="descclassname">predict_identity_char_model.</code><code class="descname">predict</code><span class="sig-paren">(</span><em>config</em>, <em>rnn_predictor</em>, <em>context</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predict_identity_char_model.html#predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#predict_identity_char_model.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs the prediction given the context.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="predict_identity_char_model.predict_items">
+<code class="descclassname">predict_identity_char_model.</code><code class="descname">predict_items</code><span class="sig-paren">(</span><em>config</em>, <em>rnn_predictor</em>, <em>context</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predict_identity_char_model.html#predict_items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#predict_identity_char_model.predict_items" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="predict_identity_char_model.setup_context">
+<code class="descclassname">predict_identity_char_model.</code><code class="descname">setup_context</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predict_identity_char_model.html#setup_context"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#predict_identity_char_model.setup_context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configures by normalizing the provided context.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="predict_identity_char_model.setup_rnn">
+<code class="descclassname">predict_identity_char_model.</code><code class="descname">setup_rnn</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predict_identity_char_model.html#setup_rnn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#predict_identity_char_model.setup_rnn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads an existing RNN model.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="predict_identity_char_model.setup_rnn_predictor">
+<code class="descclassname">predict_identity_char_model.</code><code class="descname">setup_rnn_predictor</code><span class="sig-paren">(</span><em>rnn</em>, <em>vocabulary</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predict_identity_char_model.html#setup_rnn_predictor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#predict_identity_char_model.setup_rnn_predictor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a predictor given the model and its vocabulary.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="predict_identity_char_model.setup_vocabulary">
+<code class="descclassname">predict_identity_char_model.</code><code class="descname">setup_vocabulary</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predict_identity_char_model.html#setup_vocabulary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#predict_identity_char_model.setup_vocabulary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the supported vocabulary.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="predict_identity_char_model.validate_temperature">
+<code class="descclassname">predict_identity_char_model.</code><code class="descname">validate_temperature</code><span class="sig-paren">(</span><em>temperature</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predict_identity_char_model.html#validate_temperature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#predict_identity_char_model.validate_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validates the provided temperature.</p>
+</dd></dl>
+
 </div>
 
 
