@@ -122,4 +122,5 @@ def main():
     context = setup_context(config)
     predict(config, rnn_predictor, context)
 
-main()
+if __name__ == "__main__":
+    main()

@@ -221,4 +221,5 @@ def main():
     test_loss = evaluate_test(config, corpus, rnn, criterion)
     print("\ntest_loss = {:5.2f}".format(test_loss))
 
-main()
+if __name__ == "__main__":
+    main()

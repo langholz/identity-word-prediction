@@ -1,0 +1,306 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>train_personalized_identity_char_model &#8212; Identity word completion 0.8 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for train_personalized_identity_char_model</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="k">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">torch.autograd</span> <span class="k">import</span> <span class="n">Variable</span>
+<span class="kn">from</span> <span class="nn">core.rnn</span> <span class="k">import</span> <span class="n">PersonalizedCharacterRNN</span>
+<span class="kn">from</span> <span class="nn">core.corpus</span> <span class="k">import</span> <span class="n">Corpus</span>
+<span class="kn">from</span> <span class="nn">core.vocabulary</span> <span class="k">import</span> <span class="n">Vocabulary</span>
+<span class="kn">from</span> <span class="nn">core.common_helpers</span> <span class="k">import</span> <span class="n">TorchHelper</span><span class="p">,</span> <span class="n">TimeHelper</span>
+<span class="kn">from</span> <span class="nn">identity_data_processor</span> <span class="k">import</span> <span class="n">IdentityDataProcessor</span>
+
+<div class="viewcode-block" id="bool_from_string"><a class="viewcode-back" href="../train_personalized_identity_char_model.html#train_personalized_identity_char_model.bool_from_string">[docs]</a><span class="k">def</span> <span class="nf">bool_from_string</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;yes&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="s2">&quot;t&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;no&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">,</span> <span class="s2">&quot;f&quot;</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentTypeError</span><span class="p">(</span><span class="s2">&quot;Boolean value expected&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="parse_arguments"><a class="viewcode-back" href="../train_personalized_identity_char_model.html#train_personalized_identity_char_model.parse_arguments">[docs]</a><span class="k">def</span> <span class="nf">parse_arguments</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Parses the command line arguments and assigns default values if provided.&quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="s2">&quot;bool&quot;</span><span class="p">,</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">value</span><span class="p">:</span> <span class="n">bool_from_string</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+    <span class="c1"># Common</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--model_file_path&quot;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;File path used to save the model&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--corpus_file_path&quot;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;The file path to save/load the corpus constructed from the data&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--vocabulary_file_path&quot;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="s2">&quot;identity_char_vocabulary.pkl&quot;</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;The file path to save/load the vocabulary constructed from the data&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--train_data_file_path&quot;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;The file path to the training data to process&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--validation_data_file_path&quot;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;The file path to the validation data to process&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--test_data_file_path&quot;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;The file path to the test data to process&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--layer_count&quot;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">int</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;Amount of personalization layers&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--learning_rate&quot;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">float</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;Initial learning rate&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--epochs&quot;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">int</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mi">40</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;Upper limit of iterations to train&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--save_epoch_modulo&quot;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">int</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;Save epoch modulo&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--seed&quot;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">int</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mi">4930981</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;The seed used for reproducibility&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--base_model_file_path&quot;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="s2">&quot;generic_identity_char_model.pt&quot;</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;The path to the base model to initilize the model with&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--train_batch_size&quot;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">int</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;The training batch size&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--eval_batch_size&quot;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">int</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;The evaluation batch_size&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--sequence_length&quot;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">int</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;Length of the sequence&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--force_overfitting&quot;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;bool&quot;</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;Determines whether or not to force overfitting&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--use_cuda&quot;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;bool&quot;</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;Determines whether or not to use CUDA&quot;</span><span class="p">)</span>
+    <span class="n">arguments</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">arguments</span></div>
+
+<div class="viewcode-block" id="file_exists"><a class="viewcode-back" href="../train_personalized_identity_char_model.html#train_personalized_identity_char_model.file_exists">[docs]</a><span class="k">def</span> <span class="nf">file_exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Determines whether or not a file exists.&quot;&quot;&quot;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="n">exists</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">exists</span></div>
+
+<div class="viewcode-block" id="validate_data_files_exist"><a class="viewcode-back" href="../train_personalized_identity_char_model.html#train_personalized_identity_char_model.validate_data_files_exist">[docs]</a><span class="k">def</span> <span class="nf">validate_data_files_exist</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Validates that the file paths to the data exist.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">file_exists</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">train_data_file_path</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Train data file not found: &#39;&quot;</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">train_data_file_path</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">file_exists</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">validation_data_file_path</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Validation data file not found: &#39;&quot;</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">validation_data_file_path</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">file_exists</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">test_data_file_path</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Test data file not found: &#39;&quot;</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">test_data_file_path</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="setup_corpus"><a class="viewcode-back" href="../train_personalized_identity_char_model.html#train_personalized_identity_char_model.setup_corpus">[docs]</a><span class="k">def</span> <span class="nf">setup_corpus</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructs and saves, or loads a corpus.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">file_exists</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">corpus_file_path</span><span class="p">)):</span>
+        <span class="n">corpus</span> <span class="o">=</span> <span class="n">Corpus</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">corpus_file_path</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loaded corpus from &#39;&quot;</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">corpus_file_path</span> <span class="o">+</span> <span class="s2">&quot;&#39;...&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">file_exists</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">vocabulary_file_path</span><span class="p">)):</span>
+            <span class="n">vocabulary</span> <span class="o">=</span> <span class="n">Vocabulary</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">vocabulary_file_path</span><span class="p">)</span>
+            <span class="n">corpus</span><span class="o">.</span><span class="n">vocabulary</span> <span class="o">=</span> <span class="n">vocabulary</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loaded vocabulary from &#39;&quot;</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">vocabulary_file_path</span> <span class="o">+</span> <span class="s2">&quot;&#39;...&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Vocabulary file not found: &#39;&quot;</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">vocabulary_file_path</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Processing data and creating corpus...&quot;</span><span class="p">)</span>
+        <span class="n">validate_data_files_exist</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">corpus</span> <span class="o">=</span> <span class="n">Corpus</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">train_data_file_path</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">validation_data_file_path</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">test_data_file_path</span><span class="p">)</span>
+        <span class="n">vocabulary</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">file_exists</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">vocabulary_file_path</span><span class="p">)):</span>
+            <span class="n">vocabulary</span> <span class="o">=</span> <span class="n">Vocabulary</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">vocabulary_file_path</span><span class="p">)</span>
+        <span class="n">identity_processor</span> <span class="o">=</span> <span class="n">IdentityDataProcessor</span><span class="p">(</span>
+            <span class="n">vocabulary</span> <span class="o">=</span> <span class="n">vocabulary</span><span class="p">,</span>
+            <span class="n">eval_batch_size</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">eval_batch_size</span><span class="p">,</span> 
+            <span class="n">sequence_length</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">sequence_length</span><span class="p">,</span>
+            <span class="n">use_cuda</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">use_cuda</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">force_overfitting</span><span class="p">):</span>
+            <span class="n">corpus</span> <span class="o">=</span> <span class="n">identity_processor</span><span class="o">.</span><span class="n">process_corpus</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">corpus</span> <span class="o">=</span> <span class="n">identity_processor</span><span class="o">.</span><span class="n">process_overfit_corpus</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+        <span class="n">vocabulary</span> <span class="o">=</span> <span class="n">corpus</span><span class="o">.</span><span class="n">vocabulary</span>
+        <span class="n">corpus</span><span class="o">.</span><span class="n">vocabulary</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">corpus</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">corpus_file_path</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Saved corpus to &#39;&quot;</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">corpus_file_path</span> <span class="o">+</span> <span class="s2">&quot;&#39;...&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">file_exists</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">vocabulary_file_path</span><span class="p">)):</span>
+            <span class="n">vocabulary</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">vocabulary_file_path</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Saved vocabulary to &#39;&quot;</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">vocabulary_file_path</span> <span class="o">+</span> <span class="s2">&quot;&#39;...&quot;</span><span class="p">)</span>
+        <span class="n">corpus</span><span class="o">.</span><span class="n">vocabulary</span> <span class="o">=</span> <span class="n">vocabulary</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Vocabulary: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">corpus</span><span class="o">.</span><span class="n">vocabulary</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+    <span class="k">return</span> <span class="n">corpus</span></div>
+
+<div class="viewcode-block" id="save"><a class="viewcode-back" href="../train_personalized_identity_char_model.html#train_personalized_identity_char_model.save">[docs]</a><span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="n">model_file_path</span><span class="p">,</span> <span class="n">rnn</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Saves the RNN model to a given file path.&quot;&quot;&quot;</span>
+    <span class="n">TorchHelper</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">rnn</span><span class="p">,</span> <span class="n">model_file_path</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Saved model to &#39;</span><span class="si">%s</span><span class="s2">&#39;...&quot;</span> <span class="o">%</span> <span class="n">model_file_path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="load"><a class="viewcode-back" href="../train_personalized_identity_char_model.html#train_personalized_identity_char_model.load">[docs]</a><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">model_file_path</span><span class="p">,</span> <span class="n">use_cuda</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Loads an RNN model from a given file path.&quot;&quot;&quot;</span>
+    <span class="n">rnn</span> <span class="o">=</span> <span class="n">TorchHelper</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_file_path</span><span class="p">,</span> <span class="n">use_cuda</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loaded model from &#39;</span><span class="si">%s</span><span class="s2">&#39;...&quot;</span> <span class="o">%</span> <span class="n">model_file_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rnn</span></div>
+
+<div class="viewcode-block" id="setup_rnn"><a class="viewcode-back" href="../train_personalized_identity_char_model.html#train_personalized_identity_char_model.setup_rnn">[docs]</a><span class="k">def</span> <span class="nf">setup_rnn</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">corpus</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructs or loads an RNN model.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">file_exists</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">model_file_path</span><span class="p">)):</span>
+        <span class="n">rnn</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">model_file_path</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">use_cuda</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">file_exists</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">base_model_file_path</span><span class="p">)):</span>
+            <span class="n">base_rnn</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">base_model_file_path</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">use_cuda</span><span class="p">)</span>
+            <span class="n">rnn</span> <span class="o">=</span> <span class="n">PersonalizedCharacterRNN</span><span class="o">.</span><span class="n">transfer_from_rnn_with_extra_layers</span><span class="p">(</span>
+                <span class="n">base_rnn</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">.</span><span class="n">layer_count</span><span class="p">,</span>
+                <span class="n">use_cuda</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">use_cuda</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Base model file not found: &#39;&quot;</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">base_model_file_path</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rnn</span></div>
+
+<div class="viewcode-block" id="repackage_hidden"><a class="viewcode-back" href="../train_personalized_identity_char_model.html#train_personalized_identity_char_model.repackage_hidden">[docs]</a><span class="k">def</span> <span class="nf">repackage_hidden</span><span class="p">(</span><span class="n">hidden</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Wraps hidden states in new Variables, to detach them from their history.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">hidden</span><span class="p">)</span> <span class="o">==</span> <span class="n">Variable</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Variable</span><span class="p">(</span><span class="n">hidden</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">repackage_hidden</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">hidden</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="evaluate_validation"><a class="viewcode-back" href="../train_personalized_identity_char_model.html#train_personalized_identity_char_model.evaluate_validation">[docs]</a><span class="k">def</span> <span class="nf">evaluate_validation</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">corpus</span><span class="p">,</span> <span class="n">rnn</span><span class="p">,</span> <span class="n">criterion</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Evaluates the model using the validation data set.&quot;&quot;&quot;</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">corpus</span><span class="p">,</span> <span class="n">rnn</span><span class="p">,</span> <span class="n">criterion</span><span class="p">,</span> <span class="s2">&quot;validation&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">loss</span></div>
+
+<div class="viewcode-block" id="evaluate_test"><a class="viewcode-back" href="../train_personalized_identity_char_model.html#train_personalized_identity_char_model.evaluate_test">[docs]</a><span class="k">def</span> <span class="nf">evaluate_test</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">corpus</span><span class="p">,</span> <span class="n">rnn</span><span class="p">,</span> <span class="n">criterion</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Evaluates the model using the test data set.&quot;&quot;&quot;</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">corpus</span><span class="p">,</span> <span class="n">rnn</span><span class="p">,</span> <span class="n">criterion</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">loss</span></div>
+
+<div class="viewcode-block" id="evaluate"><a class="viewcode-back" href="../train_personalized_identity_char_model.html#train_personalized_identity_char_model.evaluate">[docs]</a><span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">corpus</span><span class="p">,</span> <span class="n">rnn</span><span class="p">,</span> <span class="n">criterion</span><span class="p">,</span> <span class="n">data_set</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Evaluates a model given a data set.&quot;&quot;&quot;</span>
+    <span class="n">rnn</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+    <span class="n">total_loss</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="p">((</span><span class="n">data_set</span> <span class="o">!=</span> <span class="s2">&quot;validation&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">data_set</span> <span class="o">!=</span> <span class="s2">&quot;test&quot;</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid data_set value: &#39;&quot;</span> <span class="o">+</span> <span class="n">data_set</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
+    <span class="n">evaluation_data</span> <span class="o">=</span> <span class="n">corpus</span><span class="o">.</span><span class="n">validation</span> <span class="k">if</span> <span class="p">(</span><span class="n">data_set</span> <span class="o">==</span> <span class="s2">&quot;validation&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">corpus</span><span class="o">.</span><span class="n">test</span>
+    <span class="n">hidden</span> <span class="o">=</span> <span class="n">rnn</span><span class="o">.</span><span class="n">create_hidden</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">eval_batch_size</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">evaluation_data</span><span class="p">)),</span> <span class="n">desc</span> <span class="o">=</span> <span class="s2">&quot;Evaluating (&quot;</span> <span class="o">+</span> <span class="n">data_set</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span><span class="p">):</span>
+        <span class="n">input_data</span><span class="p">,</span> <span class="n">target_data</span> <span class="o">=</span> <span class="n">evaluation_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">sequence_length</span><span class="p">):</span>
+            <span class="n">output</span><span class="p">,</span> <span class="n">hidden</span> <span class="o">=</span> <span class="n">rnn</span><span class="p">(</span><span class="n">input_data</span><span class="p">[:,</span> <span class="n">index</span><span class="p">],</span> <span class="n">hidden</span><span class="p">)</span>
+            <span class="n">total_loss</span> <span class="o">+=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">output</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">eval_batch_size</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">target_data</span><span class="p">[:,</span> <span class="n">index</span><span class="p">])</span>
+        <span class="n">hidden</span> <span class="o">=</span> <span class="n">repackage_hidden</span><span class="p">(</span><span class="n">hidden</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">total_loss</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">evaluation_data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="train_epoch"><a class="viewcode-back" href="../train_personalized_identity_char_model.html#train_personalized_identity_char_model.train_epoch">[docs]</a><span class="k">def</span> <span class="nf">train_epoch</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">corpus</span><span class="p">,</span> <span class="n">rnn</span><span class="p">,</span> <span class="n">criterion</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Trains an epoch.&quot;&quot;&quot;</span>
+    <span class="n">rnn</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+    <span class="n">total_loss</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">hidden</span> <span class="o">=</span> <span class="n">rnn</span><span class="o">.</span><span class="n">create_hidden</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">train_batch_size</span><span class="p">)</span>
+    <span class="n">rnn</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+    <span class="n">input_data</span><span class="p">,</span> <span class="n">target_data</span> <span class="o">=</span> <span class="n">corpus</span><span class="o">.</span><span class="n">create_random_batch</span><span class="p">(</span>
+        <span class="n">corpus</span><span class="o">.</span><span class="n">train</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">train_batch_size</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">sequence_length</span><span class="p">,</span>
+        <span class="n">use_cuda</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">use_cuda</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">sequence_length</span><span class="p">):</span>
+        <span class="n">output</span><span class="p">,</span> <span class="n">hidden</span> <span class="o">=</span> <span class="n">rnn</span><span class="p">(</span><span class="n">input_data</span><span class="p">[:,</span> <span class="n">index</span><span class="p">],</span> <span class="n">hidden</span><span class="p">)</span>
+        <span class="n">total_loss</span> <span class="o">+=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">output</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">train_batch_size</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">target_data</span><span class="p">[:,</span> <span class="n">index</span><span class="p">])</span>
+    <span class="n">total_loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+    <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">total_loss</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">config</span><span class="o">.</span><span class="n">sequence_length</span></div>
+
+<div class="viewcode-block" id="train"><a class="viewcode-back" href="../train_personalized_identity_char_model.html#train_personalized_identity_char_model.train">[docs]</a><span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">corpus</span><span class="p">,</span> <span class="n">rnn</span><span class="p">,</span> <span class="n">criterion</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Trains the model fully given the configuration.&quot;&quot;&quot;</span>
+    <span class="n">min_validation_loss</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">avg_loss</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">training_delta</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">epochs</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">desc</span> <span class="o">=</span> <span class="s2">&quot;Training&quot;</span><span class="p">):</span>
+            <span class="n">start_train_epoch_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">train_loss</span> <span class="o">=</span> <span class="n">train_epoch</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">corpus</span><span class="p">,</span> <span class="n">rnn</span><span class="p">,</span> <span class="n">criterion</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">)</span>
+            <span class="n">training_delta</span> <span class="o">+=</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_train_epoch_time</span><span class="p">)</span>
+            <span class="n">avg_loss</span> <span class="o">+=</span> <span class="n">train_loss</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[epoch = </span><span class="si">{:3d}</span><span class="s2">] train_loss = </span><span class="si">{:5.2f}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="n">train_loss</span><span class="p">))</span>
+            <span class="k">if</span> <span class="p">((</span><span class="n">epoch</span> <span class="o">%</span> <span class="n">config</span><span class="o">.</span><span class="n">save_epoch_modulo</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">validation_loss</span> <span class="o">=</span> <span class="n">evaluate_validation</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">corpus</span><span class="p">,</span> <span class="n">rnn</span><span class="p">,</span> <span class="n">criterion</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[epoch = </span><span class="si">{:3d}</span><span class="s2">] validation_loss = </span><span class="si">{:5.2f}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="n">validation_loss</span><span class="p">))</span>
+                <span class="k">if</span> <span class="p">((</span><span class="n">min_validation_loss</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">min_validation_loss</span> <span class="o">&gt;</span> <span class="n">validation_loss</span><span class="p">)):</span>
+                    <span class="n">min_validation_loss</span> <span class="o">=</span> <span class="n">validation_loss</span>
+                    <span class="n">save</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">model_file_path</span><span class="p">,</span> <span class="n">rnn</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[epoch = </span><span class="si">{:3d}</span><span class="s2">] min_validation_loss = </span><span class="si">{:5.2f}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="n">min_validation_loss</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Exiting early...&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Total training time: &quot;</span> <span class="o">+</span> <span class="n">TimeHelper</span><span class="o">.</span><span class="n">time_delta</span><span class="p">(</span><span class="n">training_delta</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../train_personalized_identity_char_model.html#train_personalized_identity_char_model.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;The main entry point for training.&quot;&quot;&quot;</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">parse_arguments</span><span class="p">()</span>
+    <span class="n">TorchHelper</span><span class="o">.</span><span class="n">set_seed</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span> <span class="n">use_cuda</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">use_cuda</span><span class="p">)</span>
+    <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">corpus</span> <span class="o">=</span> <span class="n">setup_corpus</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">rnn</span> <span class="o">=</span> <span class="n">setup_rnn</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">corpus</span><span class="p">)</span>
+    <span class="n">criterion</span> <span class="o">=</span> <span class="n">TorchHelper</span><span class="o">.</span><span class="n">create_cross_entropy_loss</span><span class="p">()</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">TorchHelper</span><span class="o">.</span><span class="n">create_adam_optimizer</span><span class="p">(</span><span class="n">rnn</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">config</span><span class="o">.</span><span class="n">learning_rate</span><span class="p">)</span>
+    <span class="n">train</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">corpus</span><span class="p">,</span> <span class="n">rnn</span><span class="p">,</span> <span class="n">criterion</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Test validation:&quot;</span><span class="p">)</span>
+    <span class="n">test_loss</span> <span class="o">=</span> <span class="n">evaluate_test</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">corpus</span><span class="p">,</span> <span class="n">rnn</span><span class="p">,</span> <span class="n">criterion</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">test_loss = </span><span class="si">{:5.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">test_loss</span><span class="p">))</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Elmar Langholz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

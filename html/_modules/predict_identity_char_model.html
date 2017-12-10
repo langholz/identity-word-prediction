@@ -1,0 +1,211 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>predict_identity_char_model &#8212; Identity word completion 0.8 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for predict_identity_char_model</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">torch.autograd</span> <span class="k">import</span> <span class="n">Variable</span>
+<span class="kn">from</span> <span class="nn">core.prediction</span> <span class="k">import</span> <span class="n">CharacterRNNPredictor</span>
+<span class="kn">from</span> <span class="nn">core.vocabulary</span> <span class="k">import</span> <span class="n">Vocabulary</span>
+<span class="kn">from</span> <span class="nn">core.common_helpers</span> <span class="k">import</span> <span class="n">TorchHelper</span>
+<span class="kn">from</span> <span class="nn">identity_data_processor</span> <span class="k">import</span> <span class="n">IdentityDataProcessor</span>
+
+<div class="viewcode-block" id="bool_from_string"><a class="viewcode-back" href="../predict_identity_char_model.html#predict_identity_char_model.bool_from_string">[docs]</a><span class="k">def</span> <span class="nf">bool_from_string</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;yes&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="s2">&quot;t&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;no&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">,</span> <span class="s2">&quot;f&quot;</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentTypeError</span><span class="p">(</span><span class="s2">&quot;Boolean value expected&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="parse_arguments"><a class="viewcode-back" href="../predict_identity_char_model.html#predict_identity_char_model.parse_arguments">[docs]</a><span class="k">def</span> <span class="nf">parse_arguments</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Parses the command line arguments and assigns default values if provided.&quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="s2">&quot;bool&quot;</span><span class="p">,</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">value</span><span class="p">:</span> <span class="n">bool_from_string</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+    <span class="c1"># Common</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--context&quot;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;The context to use for prediction&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--count&quot;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">int</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;The number of characters/words to predict&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--words&quot;</span><span class="p">,</span> <span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;Determines whether to predict words instead of characters or a sentence&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--sentence&quot;</span><span class="p">,</span> <span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;Determines whether to predict a sentence instead of characters or words&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--add_postfix_eos&quot;</span><span class="p">,</span> <span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;Adds an end of string item to the end of context&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--add_prefix_eos&quot;</span><span class="p">,</span> <span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;Adds an end of string item to the beginning of the context&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--add_postfix_space&quot;</span><span class="p">,</span> <span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;Adds a space at the end of the context&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--temperature&quot;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">float</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mf">0.8</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;The prediction diversity&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--vocabulary_file_path&quot;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="s2">&quot;identity_char_vocabulary.pkl&quot;</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;The file path to load the vocabulary constructed from the data&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--model_file_path&quot;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="s2">&quot;identity_char_model.pt&quot;</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;File path used to load the model&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--seed&quot;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">int</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mi">4930981</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;The seed used for reproducibility&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--use_cuda&quot;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;bool&quot;</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;Determines whether or not to use CUDA&quot;</span><span class="p">)</span>
+    <span class="n">arguments</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">arguments</span></div>
+
+<div class="viewcode-block" id="validate_temperature"><a class="viewcode-back" href="../predict_identity_char_model.html#predict_identity_char_model.validate_temperature">[docs]</a><span class="k">def</span> <span class="nf">validate_temperature</span><span class="p">(</span><span class="n">temperature</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Validates the provided temperature.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">temperature</span> <span class="o">&lt;</span> <span class="mf">1e-3</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Temperature is less than 1e-3&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="file_exists"><a class="viewcode-back" href="../predict_identity_char_model.html#predict_identity_char_model.file_exists">[docs]</a><span class="k">def</span> <span class="nf">file_exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Determines whether or not a file exists.&quot;&quot;&quot;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="n">exists</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">exists</span></div>
+
+<div class="viewcode-block" id="setup_vocabulary"><a class="viewcode-back" href="../predict_identity_char_model.html#predict_identity_char_model.setup_vocabulary">[docs]</a><span class="k">def</span> <span class="nf">setup_vocabulary</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Loads the supported vocabulary.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">file_exists</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">vocabulary_file_path</span><span class="p">)):</span>
+        <span class="n">vocabulary</span> <span class="o">=</span> <span class="n">Vocabulary</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">vocabulary_file_path</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loaded vocabulary from &#39;&quot;</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">vocabulary_file_path</span> <span class="o">+</span> <span class="s2">&quot;&#39;...&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Vocabulary file not found: &#39;&quot;</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">vocabulary_file_path</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">vocabulary</span></div>
+
+<div class="viewcode-block" id="load"><a class="viewcode-back" href="../predict_identity_char_model.html#predict_identity_char_model.load">[docs]</a><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">model_file_path</span><span class="p">,</span> <span class="n">use_cuda</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Loads an RNN model from a given file path.&quot;&quot;&quot;</span>
+    <span class="n">rnn</span> <span class="o">=</span> <span class="n">TorchHelper</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_file_path</span><span class="p">,</span> <span class="n">use_cuda</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loaded model from &#39;</span><span class="si">%s</span><span class="s2">&#39;...&quot;</span> <span class="o">%</span> <span class="n">model_file_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rnn</span></div>
+
+<div class="viewcode-block" id="setup_rnn"><a class="viewcode-back" href="../predict_identity_char_model.html#predict_identity_char_model.setup_rnn">[docs]</a><span class="k">def</span> <span class="nf">setup_rnn</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Loads an existing RNN model.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">file_exists</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">model_file_path</span><span class="p">)):</span>
+        <span class="n">rnn</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">model_file_path</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">use_cuda</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Model file not found: &#39;&quot;</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">model_file_path</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rnn</span></div>
+
+<div class="viewcode-block" id="setup_rnn_predictor"><a class="viewcode-back" href="../predict_identity_char_model.html#predict_identity_char_model.setup_rnn_predictor">[docs]</a><span class="k">def</span> <span class="nf">setup_rnn_predictor</span><span class="p">(</span><span class="n">rnn</span><span class="p">,</span> <span class="n">vocabulary</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates a predictor given the model and its vocabulary.&quot;&quot;&quot;</span>
+    <span class="n">rnn_predictor</span> <span class="o">=</span> <span class="n">CharacterRNNPredictor</span><span class="p">(</span><span class="n">rnn</span><span class="p">,</span> <span class="n">vocabulary</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rnn_predictor</span></div>
+
+<div class="viewcode-block" id="setup_context"><a class="viewcode-back" href="../predict_identity_char_model.html#predict_identity_char_model.setup_context">[docs]</a><span class="k">def</span> <span class="nf">setup_context</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Configures by normalizing the provided context.&quot;&quot;&quot;</span>
+    <span class="n">identity_processor</span> <span class="o">=</span> <span class="n">IdentityDataProcessor</span><span class="p">()</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="n">identity_processor</span><span class="o">.</span><span class="n">items_from_string</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">context</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">add_prefix_eos</span><span class="p">):</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&lt;eos&gt;&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">context</span>
+    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">add_postfix_eos</span><span class="p">):</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="n">context</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">add_postfix_space</span><span class="p">):</span>
+        <span class="n">context</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot; &quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">context</span></div>
+
+<div class="viewcode-block" id="predict_items"><a class="viewcode-back" href="../predict_identity_char_model.html#predict_identity_char_model.predict_items">[docs]</a><span class="k">def</span> <span class="nf">predict_items</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">rnn_predictor</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">sentence</span><span class="p">):</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">rnn_predictor</span><span class="o">.</span><span class="n">predict_sentence</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">count</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">words</span><span class="p">):</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">rnn_predictor</span><span class="o">.</span><span class="n">predict_words</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">count</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">rnn_predictor</span><span class="o">.</span><span class="n">predict_chars</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">count</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;prediction: </span><span class="se">\&quot;</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="predict"><a class="viewcode-back" href="../predict_identity_char_model.html#predict_identity_char_model.predict">[docs]</a><span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">rnn_predictor</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Performs the prediction given the context.&quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;context: &quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   string: &quot;</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">context</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   items: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="p">))</span>
+    <span class="n">predict_items</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">rnn_predictor</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../predict_identity_char_model.html#predict_identity_char_model.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;The main entry point for prediction.&quot;&quot;&quot;</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">parse_arguments</span><span class="p">()</span>
+    <span class="n">validate_temperature</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
+    <span class="n">TorchHelper</span><span class="o">.</span><span class="n">set_seed</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">vocabulary</span> <span class="o">=</span> <span class="n">setup_vocabulary</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">rnn</span> <span class="o">=</span> <span class="n">setup_rnn</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">use_cuda</span><span class="p">:</span>
+        <span class="n">rnn</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">rnn</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+
+    <span class="n">rnn_predictor</span> <span class="o">=</span> <span class="n">setup_rnn_predictor</span><span class="p">(</span><span class="n">rnn</span><span class="p">,</span> <span class="n">vocabulary</span><span class="p">)</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="n">setup_context</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">predict</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">rnn_predictor</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Elmar Langholz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

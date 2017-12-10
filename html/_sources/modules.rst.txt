@@ -1,5 +1,5 @@
-style-transfer
-==============
+identity-word-prediction
+========================
 
 .. toctree::
    :maxdepth: 4
