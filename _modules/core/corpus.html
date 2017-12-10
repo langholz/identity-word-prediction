@@ -1,0 +1,297 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>core.corpus &#8212; Identity word completion 0.8 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for core.corpus</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch.autograd</span> <span class="k">import</span> <span class="n">Variable</span>
+
+<div class="viewcode-block" id="Corpus"><a class="viewcode-back" href="../../core.html#core.corpus.Corpus">[docs]</a><span class="k">class</span> <span class="nc">Corpus</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Defines a `Corpus`.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    train_file_path : :obj:`str`</span>
+<span class="sd">        The path to the train data file.</span>
+<span class="sd">    train : :obj:`torch.LongTensor`</span>
+<span class="sd">        The trained data represented as indices from the constructed vocabulary.</span>
+<span class="sd">    validation_file_path : :obj:`str`</span>
+<span class="sd">        The path to the validation data file.</span>
+<span class="sd">    validation : :obj:`torch.LongTensor`</span>
+<span class="sd">        The validation data represented as indices from the constructed vocabulary.</span>
+<span class="sd">    test_file_path : :obj:`str`</span>
+<span class="sd">        The path to the test data file.</span>
+<span class="sd">    test : :obj:`torch.LongTensor`</span>
+<span class="sd">        The test data represented as indices from the constructed vocabulary.</span>
+<span class="sd">    vocabulary : :obj:`Vocabulary`</span>
+<span class="sd">        The vocabulary constructed from the train, validation and test files.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_file_path</span><span class="p">,</span> <span class="n">validation_file_path</span><span class="p">,</span> <span class="n">test_file_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes an instance of the `Corpus` class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        train_file_path : :obj:`str`</span>
+<span class="sd">            The path to the train data file.</span>
+<span class="sd">        validation_file_path : :obj:`str`</span>
+<span class="sd">            The path to the validation data file.</span>
+<span class="sd">        test_file_path : :obj:`str`</span>
+<span class="sd">            The path to the test data file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_file_path</span> <span class="o">=</span> <span class="n">train_file_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validation_file_path</span> <span class="o">=</span> <span class="n">validation_file_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test_file_path</span> <span class="o">=</span> <span class="n">test_file_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Corpus.load"><a class="viewcode-back" href="../../core.html#core.corpus.Corpus.load">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Loads the corpus from a file path.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path : :obj:`str`</span>
+<span class="sd">            The path to the file to load the corpus from.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`Corpus`</span>
+<span class="sd">            The loaded corpus.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">input_handle</span><span class="p">:</span>
+            <span class="n">corpus</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">input_handle</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">corpus</span></div>
+
+<div class="viewcode-block" id="Corpus.save"><a class="viewcode-back" href="../../core.html#core.corpus.Corpus.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Saves the current instance to the provided file path.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path : :obj:`str`</span>
+<span class="sd">            The path to the file to store the corpus.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">output_handle</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_handle</span><span class="p">,</span> <span class="n">protocol</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Corpus.create_batches"><a class="viewcode-back" href="../../core.html#core.corpus.Corpus.create_batches">[docs]</a>    <span class="k">def</span> <span class="nf">create_batches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">use_cuda</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates batches from the provided data set.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : :obj:`torch.LongTensor`</span>
+<span class="sd">            The batched data to split.</span>
+<span class="sd">        batch_size : :obj:`int`</span>
+<span class="sd">            The size of the batch.</span>
+<span class="sd">        use_cuda : :obj:`bool`</span>
+<span class="sd">            Determines whether or not to move the data to the GPU.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`torch.LongTensor`</span>
+<span class="sd">            The batched data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">batch_count</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">//</span> <span class="n">batch_size</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">narrow</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">batch_count</span> <span class="o">*</span> <span class="n">batch_size</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">t</span><span class="p">()</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">use_cuda</span><span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="Corpus.split_batched_data"><a class="viewcode-back" href="../../core.html#core.corpus.Corpus.split_batched_data">[docs]</a>    <span class="k">def</span> <span class="nf">split_batched_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">,</span> <span class="n">use_cuda</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">eval_mode</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Splits the batched data into input and target data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : :obj:`torch.LongTensor`</span>
+<span class="sd">            The batched data to split.</span>
+<span class="sd">        index : :obj:`int`</span>
+<span class="sd">            The offset.</span>
+<span class="sd">        sequence_length : :obj:`int`</span>
+<span class="sd">            The length of the sequence.</span>
+<span class="sd">        use_cuda : :obj:`bool`</span>
+<span class="sd">            Determines whether or not to move the data to the GPU.</span>
+<span class="sd">        eval_mode : :obj:`bool`, optional</span>
+<span class="sd">            Whether or not we are in evaluation mode.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`tuple`</span>
+<span class="sd">            The split data where the first value is the input of type :obj:`torch.autograd.Variable`</span>
+<span class="sd">            and the second value is the target data of type :obj:`torch.autograd.Variable`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">index</span><span class="p">)</span>
+        <span class="n">input_data</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">index</span><span class="p">:(</span><span class="n">index</span> <span class="o">+</span> <span class="n">length</span><span class="p">)],</span> <span class="n">volatile</span> <span class="o">=</span> <span class="n">eval_mode</span><span class="p">)</span>
+        <span class="n">target_data</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">data</span><span class="p">[(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">length</span><span class="p">)]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">use_cuda</span><span class="p">):</span>
+            <span class="n">input_data</span> <span class="o">=</span> <span class="n">input_data</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+            <span class="n">target_data</span> <span class="o">=</span> <span class="n">target_data</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">input_data</span><span class="p">,</span> <span class="n">target_data</span></div>
+
+    <span class="k">def</span> <span class="nf">_create_batch_with_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">,</span> <span class="n">use_cuda</span><span class="p">,</span> <span class="n">eval_mode</span><span class="p">):</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+        <span class="n">input_data</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
+        <span class="n">target_data</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">):</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">indices</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">length</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">batch</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
+            <span class="n">input_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">target_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">input_data</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="n">volatile</span> <span class="o">=</span> <span class="n">eval_mode</span><span class="p">)</span>
+        <span class="n">target_data</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">target_data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">use_cuda</span><span class="p">):</span>
+            <span class="n">input_data</span> <span class="o">=</span> <span class="n">input_data</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+            <span class="n">target_data</span> <span class="o">=</span> <span class="n">target_data</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">input_data</span><span class="p">,</span> <span class="n">target_data</span>
+
+<div class="viewcode-block" id="Corpus.create_batch"><a class="viewcode-back" href="../../core.html#core.corpus.Corpus.create_batch">[docs]</a>    <span class="k">def</span> <span class="nf">create_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">,</span> <span class="n">use_cuda</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">eval_mode</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a batch of a given sized composed of a defined length instances starting from a given offset.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : :obj:`torch.LongTensor`</span>
+<span class="sd">            The batched data to split.</span>
+<span class="sd">        offset : :obj:`int`</span>
+<span class="sd">            The offset to start with.</span>
+<span class="sd">        batch_size : :obj:`int`</span>
+<span class="sd">            The size of the batch.</span>
+<span class="sd">        sequence_length : :obj:`int`</span>
+<span class="sd">            The length of the sequence.</span>
+<span class="sd">        use_cuda : :obj:`bool`</span>
+<span class="sd">            Determines whether or not to move the data to the GPU.</span>
+<span class="sd">        eval_mode : :obj:`bool`, optional</span>
+<span class="sd">            Whether or not we are in evaluation mode.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`tuple`</span>
+<span class="sd">            The split data where the first value is the input of type :obj:`torch.autograd.Variable`</span>
+<span class="sd">            and the second value is the target data of type :obj:`torch.autograd.Variable`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[(</span><span class="n">offset</span> <span class="o">+</span> <span class="p">(</span><span class="n">length</span> <span class="o">*</span> <span class="n">index</span><span class="p">))</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)]</span>
+        <span class="n">input_data</span><span class="p">,</span> <span class="n">target_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_batch_with_indices</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">,</span>
+            <span class="n">indices</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">sequence_length</span><span class="p">,</span>
+            <span class="n">use_cuda</span><span class="p">,</span>
+            <span class="n">eval_mode</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">input_data</span><span class="p">,</span> <span class="n">target_data</span></div>
+
+<div class="viewcode-block" id="Corpus.create_random_batch"><a class="viewcode-back" href="../../core.html#core.corpus.Corpus.create_random_batch">[docs]</a>    <span class="k">def</span> <span class="nf">create_random_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">,</span> <span class="n">use_cuda</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">eval_mode</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a random batch of a given size composed of defined length instances.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : :obj:`torch.LongTensor`</span>
+<span class="sd">            The batched data to split.</span>
+<span class="sd">        batch_size : :obj:`int`</span>
+<span class="sd">            The size of the batch.</span>
+<span class="sd">        sequence_length : :obj:`int`</span>
+<span class="sd">            The length of the sequence.</span>
+<span class="sd">        use_cuda : :obj:`bool`</span>
+<span class="sd">            Determines whether or not to move the data to the GPU.</span>
+<span class="sd">        eval_mode : :obj:`bool`, optional</span>
+<span class="sd">            Whether or not we are in evaluation mode.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`tuple`</span>
+<span class="sd">            The split data where the first value is the input of type :obj:`torch.autograd.Variable`</span>
+<span class="sd">            and the second value is the target data of type :obj:`torch.autograd.Variable`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="n">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)]</span>
+        <span class="n">input_data</span><span class="p">,</span> <span class="n">target_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_batch_with_indices</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">,</span>
+            <span class="n">indices</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">sequence_length</span><span class="p">,</span>
+            <span class="n">use_cuda</span><span class="p">,</span>
+            <span class="n">eval_mode</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">input_data</span><span class="p">,</span> <span class="n">target_data</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Elmar Langholz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

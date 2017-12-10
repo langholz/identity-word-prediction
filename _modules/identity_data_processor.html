@@ -1,0 +1,362 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>identity_data_processor &#8212; Identity word completion 0.8 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for identity_data_processor</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">unidecode</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">nltk</span> <span class="k">import</span> <span class="n">sent_tokenize</span>
+<span class="kn">from</span> <span class="nn">torch.autograd</span> <span class="k">import</span> <span class="n">Variable</span>
+<span class="kn">from</span> <span class="nn">core.vocabulary</span> <span class="k">import</span> <span class="n">Vocabulary</span>
+<span class="kn">from</span> <span class="nn">core.common_helpers</span> <span class="k">import</span> <span class="o">*</span>
+
+<div class="viewcode-block" id="CharDataProcessor"><a class="viewcode-back" href="../identity_data_processor.html#identity_data_processor.CharDataProcessor">[docs]</a><span class="k">class</span> <span class="nc">CharDataProcessor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Defines the base set of functionality to process a data set into characters.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">end_of_sequence_token</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">numeric_token</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">vocabulary</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes an instance of the `CharDataProcessor` class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        end_of_sequence_token : :obj:`object`, optional</span>
+<span class="sd">            If provided, the item used to indicate the end of sequence.</span>
+<span class="sd">        numeric_token : :obj:`object`, optional</span>
+<span class="sd">            If provided, the item used to indicate a numeric value.</span>
+<span class="sd">        vocabulary : :obj:`Vocabulary`, optional</span>
+<span class="sd">            If provided, the vocabulary to use instead of the token values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vocabulary</span> <span class="o">=</span> <span class="n">vocabulary</span> <span class="k">if</span> <span class="p">(</span><span class="n">vocabulary</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">Vocabulary</span><span class="p">(</span><span class="n">eos_item</span> <span class="o">=</span> <span class="n">end_of_sequence_token</span><span class="p">,</span> <span class="n">numeric_item</span> <span class="o">=</span> <span class="n">numeric_token</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_normalize_chars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="n">chars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_vocabulary</span><span class="o">.</span><span class="n">eos_item</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="n">chars</span>
+
+    <span class="k">def</span> <span class="nf">_parse_as_tokens_iterator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="p">):</span>
+        <span class="n">tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_chars</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">token</span>
+
+    <span class="k">def</span> <span class="nf">_parse_as_tokens</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="p">):</span>
+        <span class="n">tokens</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_as_tokens_iterator</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+            <span class="n">tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tokens</span>
+
+    <span class="k">def</span> <span class="nf">_preprocess_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+        <span class="n">iterator</span> <span class="o">=</span> <span class="n">FileHelper</span><span class="o">.</span><span class="n">read_lines_iterator</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="n">tokens_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">iterator</span><span class="p">:</span>
+            <span class="n">tokens_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_as_tokens_iterator</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens_iterator</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_vocabulary</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+                <span class="n">tokens_count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">tokens_count</span>
+
+    <span class="k">def</span> <span class="nf">_process_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">tokens_count</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">tokens_count</span><span class="p">)</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>
+        <span class="n">iterator</span> <span class="o">=</span> <span class="n">FileHelper</span><span class="o">.</span><span class="n">read_lines_iterator</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="n">token_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">iterator</span><span class="p">:</span>
+            <span class="n">tokens_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_as_tokens_iterator</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens_iterator</span><span class="p">:</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vocabulary</span><span class="o">.</span><span class="n">index_from_item</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">token_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+                <span class="n">token_index</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="k">def</span> <span class="nf">_configure_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+        <span class="n">tokens_count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">tokens_count</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="k">def</span> <span class="nf">_preprocess_split_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_paths</span><span class="p">):</span>
+        <span class="n">token_counts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="n">file_paths</span><span class="p">:</span>
+            <span class="n">tokens_count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="n">token_counts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tokens_count</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">token_counts</span>
+
+    <span class="k">def</span> <span class="nf">_process_split_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_paths</span><span class="p">,</span> <span class="n">token_counts</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">token_counts</span><span class="p">))</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>
+        <span class="n">token_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="n">file_paths</span><span class="p">:</span>
+            <span class="n">iterator</span> <span class="o">=</span> <span class="n">FileHelper</span><span class="o">.</span><span class="n">read_lines_iterator</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">iterator</span><span class="p">:</span>
+                <span class="n">tokens_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_as_tokens_iterator</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens_iterator</span><span class="p">:</span>
+                    <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vocabulary</span><span class="o">.</span><span class="n">index_from_item</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">token_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+                    <span class="n">token_index</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="k">def</span> <span class="nf">_configure_split_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_paths</span><span class="p">):</span>
+        <span class="n">token_counts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess_split_files</span><span class="p">(</span><span class="n">file_paths</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_split_files</span><span class="p">(</span><span class="n">file_paths</span><span class="p">,</span> <span class="n">token_counts</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="IdentityDataProcessor"><a class="viewcode-back" href="../identity_data_processor.html#identity_data_processor.IdentityDataProcessor">[docs]</a><span class="k">class</span> <span class="nc">IdentityDataProcessor</span><span class="p">(</span><span class="n">CharDataProcessor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Defines the identity data processor.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vocabulary</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">train_batch_size</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">eval_batch_size</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sequence_length</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">use_cuda</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes an instance of the `IdentityDataProcessor` class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        vocabulary : :obj:`Vocabulary`, optional</span>
+<span class="sd">            The vocabulary to use.</span>
+<span class="sd">        train_batch_size : :obj:`int`, optional</span>
+<span class="sd">            The size of the batches to use for training data.</span>
+<span class="sd">        eval_batch_size : :obj:`int`, optional</span>
+<span class="sd">            The size of the batches to use for evaluation data.</span>
+<span class="sd">        sequence_length : :obj:`int`, optional</span>
+<span class="sd">            The sequence length of each instance in the batched data.</span>
+<span class="sd">        use_cuda : :obj:`bool`, optional</span>
+<span class="sd">            Determines whether or not to use CUDA.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">end_of_sequence_token</span> <span class="o">=</span> <span class="s2">&quot;&lt;eos&gt;&quot;</span><span class="p">,</span> <span class="n">numeric_token</span> <span class="o">=</span> <span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="n">vocabulary</span> <span class="o">=</span> <span class="n">vocabulary</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_train_batch_size</span> <span class="o">=</span> <span class="n">train_batch_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_eval_batch_size</span> <span class="o">=</span> <span class="n">eval_batch_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sequence_length</span> <span class="o">=</span> <span class="n">sequence_length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span> <span class="o">=</span> <span class="n">use_cuda</span>
+
+    <span class="k">def</span> <span class="nf">_create_batches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">corpus</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">,</span> <span class="n">use_cuda</span><span class="p">,</span> <span class="n">eval_mode</span><span class="p">):</span>
+        <span class="n">batched_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sequence_length</span> <span class="o">*</span> <span class="n">batch_size</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">((</span><span class="n">data</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">index</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">sequence_length</span> <span class="o">*</span> <span class="n">batch_size</span><span class="p">)):</span>
+                <span class="k">break</span>
+            <span class="n">input_data</span><span class="p">,</span> <span class="n">target_data</span> <span class="o">=</span> <span class="n">corpus</span><span class="o">.</span><span class="n">create_batch</span><span class="p">(</span>
+                <span class="n">data</span><span class="p">,</span>
+                <span class="n">index</span><span class="p">,</span>
+                <span class="n">batch_size</span><span class="p">,</span>
+                <span class="n">sequence_length</span><span class="p">,</span>
+                <span class="n">use_cuda</span> <span class="o">=</span> <span class="n">use_cuda</span><span class="p">,</span>
+                <span class="n">eval_mode</span> <span class="o">=</span> <span class="n">eval_mode</span><span class="p">)</span>
+            <span class="n">batched_data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">input_data</span><span class="p">,</span> <span class="n">target_data</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">batched_data</span>
+
+    <span class="k">def</span> <span class="nf">_batchify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">corpus</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sequence_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_train_batch_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="n">corpus</span><span class="o">.</span><span class="n">train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_batches</span><span class="p">(</span>
+                    <span class="n">corpus</span><span class="o">.</span><span class="n">train</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_train_batch_size</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_train_batch_size</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_sequence_length</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span><span class="p">,</span>
+                    <span class="kc">False</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_eval_batch_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="n">corpus</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_batches</span><span class="p">(</span>
+                    <span class="n">corpus</span><span class="p">,</span>
+                    <span class="n">corpus</span><span class="o">.</span><span class="n">validation</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_eval_batch_size</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_sequence_length</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span><span class="p">,</span>
+                    <span class="kc">True</span><span class="p">)</span>
+                <span class="n">corpus</span><span class="o">.</span><span class="n">test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_batches</span><span class="p">(</span>
+                    <span class="n">corpus</span><span class="p">,</span>
+                    <span class="n">corpus</span><span class="o">.</span><span class="n">test</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_eval_batch_size</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_sequence_length</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span><span class="p">,</span>
+                    <span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">corpus</span>
+
+<div class="viewcode-block" id="IdentityDataProcessor.process_corpus"><a class="viewcode-back" href="../identity_data_processor.html#identity_data_processor.IdentityDataProcessor.process_corpus">[docs]</a>    <span class="k">def</span> <span class="nf">process_corpus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">corpus</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Processes a corpus and its data as items.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        corpus : :obj:`Corpus`</span>
+<span class="sd">            The corpus to process.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`Corpus`</span>
+<span class="sd">            The updated corpus with processed train, validation and test data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">corpus</span><span class="o">.</span><span class="n">train</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_configure_file</span><span class="p">(</span><span class="n">corpus</span><span class="o">.</span><span class="n">train_file_path</span><span class="p">)</span>
+        <span class="n">corpus</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_configure_file</span><span class="p">(</span><span class="n">corpus</span><span class="o">.</span><span class="n">validation_file_path</span><span class="p">)</span>
+        <span class="n">corpus</span><span class="o">.</span><span class="n">test</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_configure_file</span><span class="p">(</span><span class="n">corpus</span><span class="o">.</span><span class="n">test_file_path</span><span class="p">)</span>
+        <span class="n">corpus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_batchify</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+        <span class="n">corpus</span><span class="o">.</span><span class="n">vocabulary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vocabulary</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vocabulary</span><span class="o">.</span><span class="n">remove_all</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">corpus</span></div>
+
+<div class="viewcode-block" id="IdentityDataProcessor.process_overfit_corpus"><a class="viewcode-back" href="../identity_data_processor.html#identity_data_processor.IdentityDataProcessor.process_overfit_corpus">[docs]</a>    <span class="k">def</span> <span class="nf">process_overfit_corpus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">corpus</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Preprocesses a corpus for overfitting by joining the data sets into a single set used as train, validation and test data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        corpus : :obj:`Corpus`</span>
+<span class="sd">            The corpus to process.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`Corpus`</span>
+<span class="sd">            The updated corpus with processed train, validation and test data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">file_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">corpus</span><span class="o">.</span><span class="n">train_file_path</span><span class="p">,</span> <span class="n">corpus</span><span class="o">.</span><span class="n">validation_file_path</span><span class="p">,</span> <span class="n">corpus</span><span class="o">.</span><span class="n">test_file_path</span><span class="p">]</span>
+        <span class="n">corpus</span><span class="o">.</span><span class="n">train</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_configure_split_files</span><span class="p">(</span><span class="n">file_paths</span><span class="p">)</span>
+        <span class="n">corpus</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_configure_split_files</span><span class="p">(</span><span class="n">file_paths</span><span class="p">)</span>
+        <span class="n">corpus</span><span class="o">.</span><span class="n">test</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_configure_split_files</span><span class="p">(</span><span class="n">file_paths</span><span class="p">)</span>
+        <span class="n">corpus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_batchify</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+        <span class="n">corpus</span><span class="o">.</span><span class="n">vocabulary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vocabulary</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vocabulary</span><span class="o">.</span><span class="n">remove_all</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">corpus</span></div>
+
+<div class="viewcode-block" id="IdentityDataProcessor.normalize_sentence"><a class="viewcode-back" href="../identity_data_processor.html#identity_data_processor.IdentityDataProcessor.normalize_sentence">[docs]</a>    <span class="k">def</span> <span class="nf">normalize_sentence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentence</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parses a sentence and normalizes it.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sentence : :obj:`str`</span>
+<span class="sd">            The sentence to normalize.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`str`</span>
+<span class="sd">            The normalized sentence. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sentence</span> <span class="o">=</span> <span class="n">unidecode</span><span class="o">.</span><span class="n">unidecode</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span>
+        <span class="n">sentence</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[-+]?(\d+([.,]\d*)?|[.,]\d+)([eE][-+]?\d+)?&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="n">sentence</span><span class="p">)</span>
+        <span class="n">sentence</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[</span><span class="se">\&quot;</span><span class="s2">-]+&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">sentence</span><span class="p">)</span>
+        <span class="n">sentence</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;`&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="n">sentence</span><span class="p">)</span>
+        <span class="n">sentence</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[ ]+[&#39;][ ]+&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="n">sentence</span><span class="p">)</span>
+        <span class="n">sentence</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[ ]+[&#39;](?=[a-zA-Z ])&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">sentence</span><span class="p">)</span>
+        <span class="n">sentence</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?&lt;=[a-zA-Z])[&#39;][ ]+&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">sentence</span><span class="p">)</span>
+        <span class="n">sentence</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[\.]{2,}&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">sentence</span><span class="p">)</span>
+        <span class="n">sentence</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[$%&amp;=|~&lt;&gt;/_\^\[\]</span><span class="si">{}</span><span class="s2">():;,+*!?]+&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">sentence</span><span class="p">)</span>
+        <span class="n">sentence</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[ ]+&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">sentence</span><span class="p">)</span>
+        <span class="n">sentence</span> <span class="o">=</span> <span class="n">sentence</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">sentence</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?&lt;=[a-zA-Z])[&#39;]$&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">sentence</span><span class="p">)</span>
+        <span class="n">sentence</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^[&#39;](?=[a-zA-Z])&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">sentence</span><span class="p">)</span>
+        <span class="n">sentence</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[\.][&#39;]$&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">sentence</span><span class="p">)</span>
+        <span class="n">sentence</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[&#39;][\.]$&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">sentence</span><span class="p">)</span>
+        <span class="n">sentence</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^[ ]&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">sentence</span><span class="p">)</span>
+        <span class="n">sentence</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[ ]$&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">sentence</span><span class="p">)</span>
+        <span class="n">sentence</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[\.]$&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">sentence</span><span class="p">)</span>
+        <span class="n">sentence</span> <span class="o">=</span> <span class="n">sentence</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">sentence</span></div>
+
+<div class="viewcode-block" id="IdentityDataProcessor.normalize_string"><a class="viewcode-back" href="../identity_data_processor.html#identity_data_processor.IdentityDataProcessor.normalize_string">[docs]</a>    <span class="k">def</span> <span class="nf">normalize_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parses a string and normalizes it.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        string : :obj:`str`</span>
+<span class="sd">            The string to normalize.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`list` of :obj:`str`</span>
+<span class="sd">            The list of normalized sentences.  </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">normalized_sentences</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">sentences</span> <span class="o">=</span> <span class="n">sent_tokenize</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">sentences</span><span class="p">:</span>
+            <span class="n">sentence</span> <span class="o">=</span> <span class="n">sentence</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">sentence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_sentence</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">sentence</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+                <span class="n">normalized_sentences</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">normalized_sentences</span></div>
+
+<div class="viewcode-block" id="IdentityDataProcessor.items_from_string"><a class="viewcode-back" href="../identity_data_processor.html#identity_data_processor.IdentityDataProcessor.items_from_string">[docs]</a>    <span class="k">def</span> <span class="nf">items_from_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Processes an input string.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        string : :obj:`str`</span>
+<span class="sd">            The string to process.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`list` of :obj:`str`</span>
+<span class="sd">            The list of lists of items.  </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sentences</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_string</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">sentences</span><span class="p">:</span>
+            <span class="n">tokens</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_parse_as_tokens</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">:</span>
+                <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">items</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Elmar Langholz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

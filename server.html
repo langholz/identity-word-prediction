@@ -1,0 +1,241 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>server package &#8212; Identity word completion 0.8 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="server-package">
+<h1>server package<a class="headerlink" href="#server-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-server.main">
+<span id="server-main-module"></span><h2>server.main module<a class="headerlink" href="#module-server.main" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="server.main.about">
+<code class="descclassname">server.main.</code><code class="descname">about</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/server/main.html#about"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.main.about" title="Permalink to this definition">¶</a></dt>
+<dd><p>The about http entry point route.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.main.details">
+<code class="descclassname">server.main.</code><code class="descname">details</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/server/main.html#details"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.main.details" title="Permalink to this definition">¶</a></dt>
+<dd><p>The main index http entry point route.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.main.file_exists">
+<code class="descclassname">server.main.</code><code class="descname">file_exists</code><span class="sig-paren">(</span><em>file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server/main.html#file_exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.main.file_exists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines whether or not a file exists.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.main.index">
+<code class="descclassname">server.main.</code><code class="descname">index</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/server/main.html#index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.main.index" title="Permalink to this definition">¶</a></dt>
+<dd><p>The index http entry point route.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.main.is_float">
+<code class="descclassname">server.main.</code><code class="descname">is_float</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server/main.html#is_float"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.main.is_float" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines whether or not the provided value is a float or not.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.main.load">
+<code class="descclassname">server.main.</code><code class="descname">load</code><span class="sig-paren">(</span><em>file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server/main.html#load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.main.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads pickled data.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.main.load_model">
+<code class="descclassname">server.main.</code><code class="descname">load_model</code><span class="sig-paren">(</span><em>model_file_path</em>, <em>use_cuda</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server/main.html#load_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.main.load_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads an RNN model from a given file path.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.main.load_vocabulary">
+<code class="descclassname">server.main.</code><code class="descname">load_vocabulary</code><span class="sig-paren">(</span><em>file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server/main.html#load_vocabulary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.main.load_vocabulary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the supported vocabulary.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.main.normalize_context">
+<code class="descclassname">server.main.</code><code class="descname">normalize_context</code><span class="sig-paren">(</span><em>context</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server/main.html#normalize_context"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.main.normalize_context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalizes the context.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.main.normalize_identity">
+<code class="descclassname">server.main.</code><code class="descname">normalize_identity</code><span class="sig-paren">(</span><em>identity</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server/main.html#normalize_identity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.main.normalize_identity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalizes the identity.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.main.normalize_temperatures">
+<code class="descclassname">server.main.</code><code class="descname">normalize_temperatures</code><span class="sig-paren">(</span><em>temperatures</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server/main.html#normalize_temperatures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.main.normalize_temperatures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalizes a comma-separated string of temperatures into an array of floats.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.main.parse_context">
+<code class="descclassname">server.main.</code><code class="descname">parse_context</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server/main.html#parse_context"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.main.parse_context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses the context from an http request.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.main.parse_identity">
+<code class="descclassname">server.main.</code><code class="descname">parse_identity</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server/main.html#parse_identity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.main.parse_identity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses the character identity from an http request.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.main.parse_sentence_prediction_request">
+<code class="descclassname">server.main.</code><code class="descname">parse_sentence_prediction_request</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server/main.html#parse_sentence_prediction_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.main.parse_sentence_prediction_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses the sentences prediction http request.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.main.parse_temperatures">
+<code class="descclassname">server.main.</code><code class="descname">parse_temperatures</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server/main.html#parse_temperatures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.main.parse_temperatures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses the temperatures from an http request.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.main.predict_sentences">
+<code class="descclassname">server.main.</code><code class="descname">predict_sentences</code><span class="sig-paren">(</span><em>identity</em>, <em>context</em>, <em>temperatures</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server/main.html#predict_sentences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.main.predict_sentences" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predicts a set of sentences given an identity, context and temperatures.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.main.predict_sentences_json">
+<code class="descclassname">server.main.</code><code class="descname">predict_sentences_json</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/server/main.html#predict_sentences_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.main.predict_sentences_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>The sentence prediction rest api entry point route.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.main.prediction">
+<code class="descclassname">server.main.</code><code class="descname">prediction</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/server/main.html#prediction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.main.prediction" title="Permalink to this definition">¶</a></dt>
+<dd><p>The prediction http entry point route.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.main.raise_if_file_not_exists">
+<code class="descclassname">server.main.</code><code class="descname">raise_if_file_not_exists</code><span class="sig-paren">(</span><em>file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server/main.html#raise_if_file_not_exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.main.raise_if_file_not_exists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raises an error if the file does not exist.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.main.sentences_prediction">
+<code class="descclassname">server.main.</code><code class="descname">sentences_prediction</code><span class="sig-paren">(</span><em>identity</em>, <em>context</em>, <em>temperatures</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server/main.html#sentences_prediction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.main.sentences_prediction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Consolidates sentence prediction.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.main.setup">
+<code class="descclassname">server.main.</code><code class="descname">setup</code><span class="sig-paren">(</span><em>vocabulary_file_path</em>, <em>homer_model_file_path</em>, <em>sherlock_model_file_path</em>, <em>details_file_path</em>, <em>use_cuda</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server/main.html#setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.main.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup the models and settings for use within flask.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.main.valid_identity">
+<code class="descclassname">server.main.</code><code class="descname">valid_identity</code><span class="sig-paren">(</span><em>identity</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server/main.html#valid_identity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.main.valid_identity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines whether or not the provided identity is a valid value.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.main.valid_temperature">
+<code class="descclassname">server.main.</code><code class="descname">valid_temperature</code><span class="sig-paren">(</span><em>temperature</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server/main.html#valid_temperature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.main.valid_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines whether or not the temperature is valid.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.main.valid_tempratures">
+<code class="descclassname">server.main.</code><code class="descname">valid_tempratures</code><span class="sig-paren">(</span><em>temperatures</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server/main.html#valid_tempratures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.main.valid_tempratures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines whether the temperatures are valid or not.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-server">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-server" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Elmar Langholz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/server.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

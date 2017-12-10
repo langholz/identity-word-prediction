@@ -1,0 +1,364 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>server.main &#8212; Identity word completion 0.8 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for server.main</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/bin/bash python3</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">urllib.parse</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="k">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">jsonify</span><span class="p">,</span> <span class="n">render_template</span><span class="p">,</span> <span class="n">request</span>
+<span class="kn">from</span> <span class="nn">torch.autograd</span> <span class="k">import</span> <span class="n">Variable</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">core.prediction</span> <span class="k">import</span> <span class="n">CharacterRNNPredictor</span>
+<span class="kn">from</span> <span class="nn">core.vocabulary</span> <span class="k">import</span> <span class="n">Vocabulary</span>
+<span class="kn">from</span> <span class="nn">core.common_helpers</span> <span class="k">import</span> <span class="n">TorchHelper</span>
+<span class="kn">from</span> <span class="nn">identity_data_processor</span> <span class="k">import</span> <span class="n">IdentityDataProcessor</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">max_word_count</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="mi">4930981</span>
+<span class="n">use_cuda</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">vocabulary_file_path</span> <span class="o">=</span> <span class="s2">&quot;./models/identity_char_vocabulary.pkl&quot;</span>
+<span class="n">char_rnn_homer_file_path</span> <span class="o">=</span> <span class="s2">&quot;./models/homer_simpson_char_lstm_e10k_l4_es1k.pt&quot;</span>
+<span class="n">char_rnn_sherlock_file_path</span> <span class="o">=</span> <span class="s2">&quot;./models/sherlock_holmes_char_lstm_e10k_l4_es1k.pt&quot;</span>
+<span class="n">details_file_path</span> <span class="o">=</span> <span class="s2">&quot;./models/analysis/details.pkl&quot;</span>
+<span class="n">identity_processor</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">homer_predictor</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">sherlock_predictor</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">details</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="file_exists"><a class="viewcode-back" href="../../server.html#server.main.file_exists">[docs]</a><span class="k">def</span> <span class="nf">file_exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Determines whether or not a file exists.&quot;&quot;&quot;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="n">exists</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">exists</span></div>
+
+<div class="viewcode-block" id="load"><a class="viewcode-back" href="../../server.html#server.main.load">[docs]</a><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Loads pickled data.&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">input_handle</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">input_handle</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="raise_if_file_not_exists"><a class="viewcode-back" href="../../server.html#server.main.raise_if_file_not_exists">[docs]</a><span class="k">def</span> <span class="nf">raise_if_file_not_exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Raises an error if the file does not exist.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">file_exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;File &#39;&quot;</span> <span class="o">+</span> <span class="n">file_path</span> <span class="o">+</span> <span class="s2">&quot;&#39;&#39; not found!&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="load_model"><a class="viewcode-back" href="../../server.html#server.main.load_model">[docs]</a><span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span><span class="n">model_file_path</span><span class="p">,</span> <span class="n">use_cuda</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Loads an RNN model from a given file path.&quot;&quot;&quot;</span>
+    <span class="n">rnn</span> <span class="o">=</span> <span class="n">TorchHelper</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_file_path</span><span class="p">,</span> <span class="n">use_cuda</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loaded model from &#39;</span><span class="si">%s</span><span class="s2">&#39;...&quot;</span> <span class="o">%</span> <span class="n">model_file_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rnn</span></div>
+
+<div class="viewcode-block" id="load_vocabulary"><a class="viewcode-back" href="../../server.html#server.main.load_vocabulary">[docs]</a><span class="k">def</span> <span class="nf">load_vocabulary</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Loads the supported vocabulary.&quot;&quot;&quot;</span>
+    <span class="n">vocabulary</span> <span class="o">=</span> <span class="n">Vocabulary</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loaded vocabulary from &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">file_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">vocabulary</span></div>
+
+<div class="viewcode-block" id="normalize_identity"><a class="viewcode-back" href="../../server.html#server.main.normalize_identity">[docs]</a><span class="k">def</span> <span class="nf">normalize_identity</span><span class="p">(</span><span class="n">identity</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Normalizes the identity.&quot;&quot;&quot;</span>
+    <span class="n">identity</span> <span class="o">=</span> <span class="n">identity</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">identity</span></div>
+
+<div class="viewcode-block" id="valid_identity"><a class="viewcode-back" href="../../server.html#server.main.valid_identity">[docs]</a><span class="k">def</span> <span class="nf">valid_identity</span><span class="p">(</span><span class="n">identity</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Determines whether or not the provided identity is a valid value.&quot;&quot;&quot;</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="p">(</span><span class="n">identity</span> <span class="o">==</span> <span class="s2">&quot;homer&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">identity</span> <span class="o">==</span> <span class="s2">&quot;sherlock&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">valid</span></div>
+
+<div class="viewcode-block" id="normalize_context"><a class="viewcode-back" href="../../server.html#server.main.normalize_context">[docs]</a><span class="k">def</span> <span class="nf">normalize_context</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Normalizes the context.&quot;&quot;&quot;</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">context_items</span> <span class="o">=</span> <span class="n">identity_processor</span><span class="o">.</span><span class="n">items_from_string</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">context_items</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="n">context_items</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">context_items</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="n">context_items</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&lt;eos&gt;&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">context_items</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot; &quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">context_items</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&lt;eos&gt;&quot;</span><span class="p">]</span> 
+    <span class="k">return</span> <span class="n">context_items</span></div>
+
+<div class="viewcode-block" id="is_float"><a class="viewcode-back" href="../../server.html#server.main.is_float">[docs]</a><span class="k">def</span> <span class="nf">is_float</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Determines whether or not the provided value is a float or not.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="normalize_temperatures"><a class="viewcode-back" href="../../server.html#server.main.normalize_temperatures">[docs]</a><span class="k">def</span> <span class="nf">normalize_temperatures</span><span class="p">(</span><span class="n">temperatures</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Normalizes a comma-separated string of temperatures into an array of floats.&quot;&quot;&quot;</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">temperatures</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+    <span class="n">temperature_values</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">is_float</span><span class="p">(</span><span class="n">value</span><span class="p">)):</span>
+            <span class="n">temperature</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">temperature_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">temperature_values</span></div>
+
+<div class="viewcode-block" id="valid_temperature"><a class="viewcode-back" href="../../server.html#server.main.valid_temperature">[docs]</a><span class="k">def</span> <span class="nf">valid_temperature</span><span class="p">(</span><span class="n">temperature</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Determines whether or not the temperature is valid.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">temperature</span> <span class="o">&gt;</span> <span class="mf">1e-3</span> <span class="ow">and</span> <span class="n">temperature</span> <span class="o">&lt;=</span> <span class="mf">1.0</span></div>
+
+<div class="viewcode-block" id="valid_tempratures"><a class="viewcode-back" href="../../server.html#server.main.valid_tempratures">[docs]</a><span class="k">def</span> <span class="nf">valid_tempratures</span><span class="p">(</span><span class="n">temperatures</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Determines whether the temperatures are valid or not.&quot;&quot;&quot;</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">invalid_temperatures</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">temperature</span> <span class="ow">in</span> <span class="n">temperatures</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">valid_temperature</span><span class="p">(</span><span class="n">temperature</span><span class="p">)):</span>
+            <span class="n">valid</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">invalid_temperatures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">valid</span><span class="p">,</span> <span class="n">invalid_temperatures</span></div>
+
+<div class="viewcode-block" id="parse_identity"><a class="viewcode-back" href="../../server.html#server.main.parse_identity">[docs]</a><span class="k">def</span> <span class="nf">parse_identity</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parses the character identity from an http request.&quot;&quot;&quot;</span>
+    <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">identity</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;identity&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">identity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">identity</span> <span class="o">=</span> <span class="n">normalize_identity</span><span class="p">(</span><span class="n">identity</span><span class="p">)</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="n">valid_identity</span><span class="p">(</span><span class="n">identity</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">identity</span> <span class="k">if</span> <span class="p">(</span><span class="n">success</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;Invalid identity: &quot;</span> <span class="o">+</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;identity&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;Identity not provided!&quot;</span>
+    <span class="k">return</span> <span class="n">success</span><span class="p">,</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="parse_context"><a class="viewcode-back" href="../../server.html#server.main.parse_context">[docs]</a><span class="k">def</span> <span class="nf">parse_context</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parses the context from an http request.&quot;&quot;&quot;</span>
+    <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">context_string</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;context&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">context_string</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="n">normalize_context</span><span class="p">(</span><span class="n">context_string</span><span class="p">)</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">context</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;Context not provided!&quot;</span>
+    <span class="k">return</span> <span class="n">success</span><span class="p">,</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="parse_temperatures"><a class="viewcode-back" href="../../server.html#server.main.parse_temperatures">[docs]</a><span class="k">def</span> <span class="nf">parse_temperatures</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parses the temperatures from an http request.&quot;&quot;&quot;</span>
+    <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">temperatures_string</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;temperatures&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">temperatures_string</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">temperatures</span> <span class="o">=</span> <span class="n">normalize_temperatures</span><span class="p">(</span><span class="n">temperatures_string</span><span class="p">)</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">temperatures</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">success</span><span class="p">):</span>
+            <span class="n">success</span><span class="p">,</span> <span class="n">invalid_temperatures</span> <span class="o">=</span> <span class="n">valid_tempratures</span><span class="p">(</span><span class="n">temperatures</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">temperatures</span> <span class="k">if</span> <span class="p">(</span><span class="n">success</span><span class="p">)</span> <span class="k">else</span> <span class="p">(</span><span class="s2">&quot;Invalid temperatures provided: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">invalid_temperatures</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;Temperatures not provided!&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;Temperatures not provided!&quot;</span>
+    <span class="k">return</span> <span class="n">success</span><span class="p">,</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="parse_sentence_prediction_request"><a class="viewcode-back" href="../../server.html#server.main.parse_sentence_prediction_request">[docs]</a><span class="k">def</span> <span class="nf">parse_sentence_prediction_request</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parses the sentences prediction http request.&quot;&quot;&quot;</span>
+    <span class="n">identity</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">temperatures</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">success</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">parse_identity</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">success</span><span class="p">):</span>
+        <span class="n">identity</span> <span class="o">=</span> <span class="n">result</span>
+        <span class="n">success</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">parse_context</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">success</span><span class="p">):</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="n">result</span>
+        <span class="n">success</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">parse_temperatures</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">success</span><span class="p">):</span>
+        <span class="n">temperatures</span> <span class="o">=</span> <span class="n">result</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">(</span><span class="n">identity</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">success</span><span class="p">,</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="predict_sentences"><a class="viewcode-back" href="../../server.html#server.main.predict_sentences">[docs]</a><span class="k">def</span> <span class="nf">predict_sentences</span><span class="p">(</span><span class="n">identity</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Predicts a set of sentences given an identity, context and temperatures.&quot;&quot;&quot;</span>
+    <span class="n">predictions</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">TorchHelper</span><span class="o">.</span><span class="n">set_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">identity</span> <span class="o">==</span> <span class="s2">&quot;homer&quot;</span><span class="p">):</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">homer_predictor</span><span class="o">.</span><span class="n">predict_sentences</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="n">max_word_count</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">identity</span> <span class="o">==</span> <span class="s2">&quot;sherlock&quot;</span><span class="p">):</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">sherlock_predictor</span><span class="o">.</span><span class="n">predict_sentences</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="n">max_word_count</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">predictions</span></div>
+
+<div class="viewcode-block" id="sentences_prediction"><a class="viewcode-back" href="../../server.html#server.main.sentences_prediction">[docs]</a><span class="k">def</span> <span class="nf">sentences_prediction</span><span class="p">(</span><span class="n">identity</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Consolidates sentence prediction.&quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{</span> <span class="s2">&quot;sentences&quot;</span><span class="p">:</span> <span class="p">[]</span> <span class="p">}</span>
+    <span class="n">predictions</span> <span class="o">=</span> <span class="n">predict_sentences</span><span class="p">(</span><span class="n">identity</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">predictions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">temperatures</span><span class="p">)):</span>
+            <span class="n">temperature</span> <span class="o">=</span> <span class="n">temperatures</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+            <span class="n">characters</span> <span class="o">=</span> <span class="n">predictions</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">characters</span><span class="p">)</span>
+            <span class="n">words</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">text</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+                <span class="n">sentence_info</span> <span class="o">=</span> <span class="p">{</span> <span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="n">index</span><span class="p">,</span> <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="n">temperature</span><span class="p">,</span> <span class="s2">&quot;words&quot;</span><span class="p">:</span> <span class="n">words</span><span class="p">,</span> <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">text</span> <span class="p">}</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;sentences&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sentence_info</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="index"><a class="viewcode-back" href="../../server.html#server.main.index">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;The index http entry point route.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s2">&quot;index.html&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="prediction"><a class="viewcode-back" href="../../server.html#server.main.prediction">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/prediction&quot;</span><span class="p">,</span> <span class="n">methods</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">prediction</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;The prediction http entry point route.&quot;&quot;&quot;</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="mi">400</span>
+    <span class="n">success</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">parse_sentence_prediction_request</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">success</span><span class="p">):</span>
+        <span class="n">prediction</span> <span class="o">=</span> <span class="n">sentences_prediction</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;sentences&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="n">identity</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">temperatures</span> <span class="o">=</span> <span class="n">result</span>
+            <span class="n">context_string</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">context</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">render_template</span><span class="p">(</span>
+                <span class="s2">&quot;prediction.html&quot;</span><span class="p">,</span>
+                <span class="n">identity</span> <span class="o">=</span> <span class="n">identity</span><span class="p">,</span>
+                <span class="n">context</span> <span class="o">=</span> <span class="n">context_string</span><span class="p">,</span>
+                <span class="n">sentences</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;sentences&quot;</span><span class="p">])</span>
+            <span class="n">code</span> <span class="o">=</span> <span class="mi">200</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;Unable to predict sentences!&quot;</span>
+            <span class="n">code</span> <span class="o">=</span> <span class="mi">500</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="mi">400</span>
+    <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">code</span></div>
+
+<div class="viewcode-block" id="details"><a class="viewcode-back" href="../../server.html#server.main.details">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/details&quot;</span><span class="p">,</span> <span class="n">methods</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">details</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;The main index http entry point route.&quot;&quot;&quot;</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="mi">200</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">render_template</span><span class="p">(</span><span class="s2">&quot;details.html&quot;</span><span class="p">,</span> <span class="n">details</span> <span class="o">=</span> <span class="n">details</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">code</span></div>
+
+<div class="viewcode-block" id="about"><a class="viewcode-back" href="../../server.html#server.main.about">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/about&quot;</span><span class="p">,</span> <span class="n">methods</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">about</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;The about http entry point route.&quot;&quot;&quot;</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="mi">200</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">render_template</span><span class="p">(</span><span class="s2">&quot;about.html&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">code</span></div>
+
+<div class="viewcode-block" id="predict_sentences_json"><a class="viewcode-back" href="../../server.html#server.main.predict_sentences_json">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/predict/sentences&quot;</span><span class="p">,</span> <span class="n">methods</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">predict_sentences_json</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;The sentence prediction rest api entry point route.&quot;&quot;&quot;</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="mi">400</span>
+    <span class="n">success</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">parse_sentence_prediction_request</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">success</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">sentences_prediction</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="p">)</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="mi">200</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="mi">400</span>
+    <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">code</span></div>
+
+<div class="viewcode-block" id="setup"><a class="viewcode-back" href="../../server.html#server.main.setup">[docs]</a><span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">vocabulary_file_path</span><span class="p">,</span> <span class="n">homer_model_file_path</span><span class="p">,</span> <span class="n">sherlock_model_file_path</span><span class="p">,</span> <span class="n">details_file_path</span><span class="p">,</span> <span class="n">use_cuda</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Setup the models and settings for use within flask.&quot;&quot;&quot;</span>
+    <span class="n">raise_if_file_not_exists</span><span class="p">(</span><span class="n">vocabulary_file_path</span><span class="p">)</span>
+    <span class="n">raise_if_file_not_exists</span><span class="p">(</span><span class="n">homer_model_file_path</span><span class="p">)</span>
+    <span class="n">raise_if_file_not_exists</span><span class="p">(</span><span class="n">sherlock_model_file_path</span><span class="p">)</span>
+    <span class="n">raise_if_file_not_exists</span><span class="p">(</span><span class="n">details_file_path</span><span class="p">)</span>
+    <span class="n">identity_processor</span> <span class="o">=</span> <span class="n">IdentityDataProcessor</span><span class="p">()</span>
+    <span class="n">vocabulary</span> <span class="o">=</span> <span class="n">load_vocabulary</span><span class="p">(</span><span class="n">vocabulary_file_path</span><span class="p">)</span>
+    <span class="n">char_rnn_homer</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="n">homer_model_file_path</span><span class="p">,</span> <span class="n">use_cuda</span><span class="p">)</span>
+    <span class="n">char_rnn_sherlock</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="n">sherlock_model_file_path</span><span class="p">,</span> <span class="n">use_cuda</span><span class="p">)</span>
+    <span class="n">homer_predictor</span> <span class="o">=</span> <span class="n">CharacterRNNPredictor</span><span class="p">(</span><span class="n">char_rnn_homer</span><span class="p">,</span> <span class="n">vocabulary</span><span class="p">)</span>
+    <span class="n">sherlock_predictor</span> <span class="o">=</span> <span class="n">CharacterRNNPredictor</span><span class="p">(</span><span class="n">char_rnn_sherlock</span><span class="p">,</span> <span class="n">vocabulary</span><span class="p">)</span>
+    <span class="n">details</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">details_file_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">identity_processor</span><span class="p">,</span> <span class="n">homer_predictor</span><span class="p">,</span> <span class="n">sherlock_predictor</span><span class="p">,</span> <span class="n">details</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">port</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">identity_processor</span><span class="p">,</span> <span class="n">homer_predictor</span><span class="p">,</span> <span class="n">sherlock_predictor</span><span class="p">,</span> <span class="n">details</span> <span class="o">=</span> <span class="n">setup</span><span class="p">(</span>
+        <span class="n">vocabulary_file_path</span><span class="p">,</span>
+        <span class="n">char_rnn_homer_file_path</span><span class="p">,</span>
+        <span class="n">char_rnn_sherlock_file_path</span><span class="p">,</span>
+        <span class="n">details_file_path</span><span class="p">,</span>
+        <span class="n">use_cuda</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">host</span> <span class="o">=</span> <span class="s2">&quot;0.0.0.0&quot;</span><span class="p">,</span> <span class="n">port</span> <span class="o">=</span> <span class="n">port</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Elmar Langholz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
