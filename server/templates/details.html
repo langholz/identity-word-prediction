@@ -1,0 +1,139 @@
+<html>
+    <title>Identity-based word prediction: Details</title>
+    <head>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,900,700,600,200">
+        <link rel= "stylesheet" type="text/css" href="{{ url_for('static', filename = 'styles/details.css') }}">
+        <link rel= "stylesheet" type="text/css" href="{{ url_for('static', filename = 'styles/overlayMenu.css') }}">
+        <style type="text/css">
+            .div-center {
+                padding: 25px;
+                margin: 25px;
+                font-family:'Source Sans Pro',sans-serif;
+                font-size: 18px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="overlayMenu" class="overlay">
+          <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+          <div class="overlay-content">
+            <a style="font-family:'Source Sans Pro',sans-serif;font-size:30px;" href="/">Demo</a>
+            <a style="font-family:'Source Sans Pro',sans-serif;font-size:30px;" href="/details">Details</a>
+            <a style="font-family:'Source Sans Pro',sans-serif;font-size:30px;" href="/about">About</a>
+          </div>
+        </div>
+        <span style="font-family:'Source Sans Pro',sans-serif;font-size:30px;cursor:pointer" onclick="openNav()">&#9776; Menu</span>
+        <div id="details" class="div-center">
+            <h3>Identity models:</h3>
+            <h4>Homer Simpson:</h4>
+            <h5>Model details:</h5>
+            <table>
+              <tr>
+                <th>Layers</th>
+                <th>Size</th>
+                <th>Training time</th>
+                <th>Test loss</th>
+                <th>Data set used</th>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>{{ details["homer"]["model"]["size"] }}</td>
+                <td>{{ details["homer"]["model"]["training_time"] }}</td>
+                <td>{{ details["homer"]["model"]["test_loss"] }}</td>
+                <td>The Simpsons by the Data</td>
+              </tr>
+            </table>
+            <h5>Training and validation loss:</h5>
+            <center><img src="{{ url_for('static', filename = 'images/homer_loss.png') }}"></img></center>
+            <h4>Sherlock Holmes:</h4>
+            <h5>Model details:</h5>
+            <table>
+              <tr>
+                <th>Layers</th>
+                <th>Size</th>
+                <th>Training time</th>
+                <th>Test loss</th>
+                <th>Data set used</th>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>{{ details["sherlock"]["model"]["size"] }}</td>
+                <td>{{ details["sherlock"]["model"]["training_time"] }}</td>
+                <td>{{ details["sherlock"]["model"]["test_loss"] }}</td>
+                <td>Sherlock (BBC TV Series)</td>
+              </tr>
+            </table>
+            <h5>Training and validation loss:</h5>
+            <center><img src="{{ url_for('static', filename = 'images/sherlock_loss.png') }}"></img></center>
+            <h3>Generic:</h3>
+            <h4>Model details:</h4>
+            <h5>Used as basis for training the two identity models</h5>
+            <table>
+              <tr>
+                <th>Layers</th>
+                <th>Size</th>
+                <th>Test loss</th>
+                <th>Data set used</th>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>{{ details["generic"]["model"]["size"] }}</td>
+                <td>{{ details["generic"]["model"]["test_loss"] }}</td>
+                <td>Movie Dialog Corpus</td>
+              </tr>
+            </table>
+            <h5>Training and validation loss:</h5>
+            <center><img src="{{ url_for('static', filename = 'images/generic_loss.png') }}"></img></center>
+            <h3>Data sets:</h3>
+            <table>
+              <tr>
+                <th>Name</th>
+                <th>Lines</th>
+                <th>Size</th>
+                <th>Training</th>
+                <th>Validation</th>
+                <th>Test</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td><a href="https://www.kaggle.com/Cornell-University/movie-dialog-corpus">Movie Dialog Corpus</a></td>
+                <td>{{ details["generic"]["data"]["line_count"] }}</td>
+                <td>{{ details["generic"]["data"]["size"] }}</td>
+                <td>80%</td>
+                <td>10%</td>
+                <td>10%</td>
+                <td>Contains a metadata-rich collection of fictional conversations extracted from raw movie scripts</td>
+              </tr>
+              <tr>
+                <td><a href="https://www.kaggle.com/wcukierski/the-simpsons-by-the-data">The Simpsons by the Data</a></td>
+                <td>{{ details["homer"]["data"]["line_count"] }}</td>
+                <td>{{ details["homer"]["data"]["size"] }}</td>
+                <td>80%</td>
+                <td>10%</td>
+                <td>10%</td>
+                <td>Contains the script lines for approximately 600 Simpsons episodes, dating back to 1989</td>
+              </tr>
+              <tr>
+                <td><a href="https://arianedevere.dreamwidth.org/56441.html">Sherlock (BBC TV Series)</a></td>
+                <td>{{ details["sherlock"]["data"]["line_count"] }}</td>
+                <td>{{ details["sherlock"]["data"]["size"] }}</td>
+                <td>80%</td>
+                <td>10%</td>
+                <td>10%</td>
+                <td>Contains full episode transripts of all the series</td>
+              </tr>
+            </table>
+        </div>
+        <p><center><label style="color:black;">by Elmar Langholz (langholz [at] gmail.com)</label></center></p>
+        <script>
+            function openNav() {
+                document.getElementById("overlayMenu").style.height = "100%";
+            }
+
+            function closeNav() {
+                document.getElementById("overlayMenu").style.height = "0%";
+            }
+        </script>
+    </body>
+</html>

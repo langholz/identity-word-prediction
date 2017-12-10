@@ -1,0 +1,505 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>core.vocabulary &#8212; Identity word completion 0.8 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for core.vocabulary</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">import</span> <span class="nn">unidecode</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch.autograd</span> <span class="k">import</span> <span class="n">Variable</span>
+
+<div class="viewcode-block" id="Vocabulary"><a class="viewcode-back" href="../../core.html#core.vocabulary.Vocabulary">[docs]</a><span class="k">class</span> <span class="nc">Vocabulary</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Defines a vocabulary of items of any type.</span>
+
+<span class="sd">    Allows the representation and conversion of items for a language model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">items</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">item_index_map</span> <span class="o">=</span> <span class="p">{},</span> <span class="n">eos_item</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">numeric_item</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">unknown_item</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes an instance of the `Vocabulary` class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        items : :obj:`list`, optional</span>
+<span class="sd">            The list of items.</span>
+<span class="sd">        item_index_map : :obj:`dict`, optional</span>
+<span class="sd">            The item index map in which the keys are the items and the values</span>
+<span class="sd">            are the corresponding index.</span>
+<span class="sd">        eos_item : :obj:`object`, optional</span>
+<span class="sd">            If provided, the item used to indicate the end of sequence.</span>
+<span class="sd">        numeric_item : :obj:`object`, optional</span>
+<span class="sd">            If provided, the item used to indicate a numeric value.</span>
+<span class="sd">        unknown_item : :obj:`object`, optional</span>
+<span class="sd">            If provided, the itmem used to indicate an unknown value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_items</span> <span class="o">=</span> <span class="n">items</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_item_index_map</span> <span class="o">=</span> <span class="n">item_index_map</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_eos_item</span> <span class="o">=</span> <span class="n">eos_item</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_numeric_item</span> <span class="o">=</span> <span class="n">numeric_item</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_unknown_item</span> <span class="o">=</span> <span class="n">unknown_item</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">eos_item</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_eos_item</span><span class="p">(</span><span class="n">eos_item</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">numeric_item</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_numeric_item</span><span class="p">(</span><span class="n">numeric_item</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">unknown_item</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_unknown_item</span><span class="p">(</span><span class="n">unknown_item</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Vocabulary.load"><a class="viewcode-back" href="../../core.html#core.vocabulary.Vocabulary.load">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Loads the vocabulary from a file path.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path : :obj:`str`</span>
+<span class="sd">            The path to the file to load the vocabulary from.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">input_handle</span><span class="p">:</span>
+            <span class="n">vocabulary</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">input_handle</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">vocabulary</span></div>
+
+<div class="viewcode-block" id="Vocabulary.create_item_index_map"><a class="viewcode-back" href="../../core.html#core.vocabulary.Vocabulary.create_item_index_map">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">create_item_index_map</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates an index map from a set of items.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        items : :obj:`list`</span>
+<span class="sd">            The list of items to create and index map from.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            An item index map where the keys are items and the values</span>
+<span class="sd">            are the corresponding index.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">item_index_map</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>
+            <span class="n">item_index_map</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="k">return</span> <span class="n">item_index_map</span></div>
+
+<div class="viewcode-block" id="Vocabulary.from_list"><a class="viewcode-back" href="../../core.html#core.vocabulary.Vocabulary.from_list">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_list</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">eos</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates a Vocabulary instance from a set of items.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        items : :obj:`list`</span>
+<span class="sd">            The list of items to create the vocabulary with.</span>
+<span class="sd">        eos : :obj:`object`, optional</span>
+<span class="sd">            If provided, the item used to indicate the end of sequence. </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Vocabulary</span>
+<span class="sd">            The vocabulary instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">item_index_map</span> <span class="o">=</span> <span class="n">Vocabulary</span><span class="o">.</span><span class="n">create_item_index_map</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">item_index_map</span><span class="p">,</span> <span class="n">eos</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="Vocabulary.from_string"><a class="viewcode-back" href="../../core.html#core.vocabulary.Vocabulary.from_string">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">eos</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates a Vocabulary instance from a string, where each character is an item.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        str : str</span>
+<span class="sd">            The string used to create the vocabulary with.</span>
+<span class="sd">        eos : :obj:`object`, optional</span>
+<span class="sd">            If provided, the item used to indicate the end of sequence. </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Vocabulary</span>
+<span class="sd">            The vocabulary instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="n">item_index_map</span> <span class="o">=</span> <span class="n">ItemDictionary</span><span class="o">.</span><span class="n">create_item_index_map</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">item_index_map</span><span class="p">,</span> <span class="n">eos</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span></div>
+
+    <span class="k">def</span> <span class="nf">_add_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_item_index_map</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">_add_eos_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eos_item</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">eos_item</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_eos_item</span> <span class="o">=</span> <span class="n">eos_item</span>
+
+    <span class="k">def</span> <span class="nf">_add_numeric_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">numeric_item</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">numeric_item</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_numeric_item</span> <span class="o">=</span> <span class="n">numeric_item</span>
+
+    <span class="k">def</span> <span class="nf">_add_unknown_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unknown_item</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">unknown_item</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_unknown_item</span> <span class="o">=</span> <span class="n">unknown_item</span>
+
+<div class="viewcode-block" id="Vocabulary.save"><a class="viewcode-back" href="../../core.html#core.vocabulary.Vocabulary.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Saves the current instance to the provided file path.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path : :obj:`str`</span>
+<span class="sd">            The path to the file to store the vocabulary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">output_handle</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_handle</span><span class="p">,</span> <span class="n">protocol</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Vocabulary.item_exists"><a class="viewcode-back" href="../../core.html#core.vocabulary.Vocabulary.item_exists">[docs]</a>    <span class="k">def</span> <span class="nf">item_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Determines whether or not an item exists in the vocuabulary.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        item : :obj:`object`</span>
+<span class="sd">            The item to validate.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if exists, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">exists</span> <span class="o">=</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_item_index_map</span>
+        <span class="k">return</span> <span class="n">exists</span></div>
+
+<div class="viewcode-block" id="Vocabulary.add"><a class="viewcode-back" href="../../core.html#core.vocabulary.Vocabulary.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add an item to the vocuabulary.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        item : :obj:`object`</span>
+<span class="sd">            The item to add to the vocabulary.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if exists, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_exists</span><span class="p">(</span><span class="n">item</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_item</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_item_index_map</span><span class="p">[</span><span class="n">item</span><span class="p">]</span></div>
+    
+<div class="viewcode-block" id="Vocabulary.index_from_item"><a class="viewcode-back" href="../../core.html#core.vocabulary.Vocabulary.index_from_item">[docs]</a>    <span class="k">def</span> <span class="nf">index_from_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieves the index given an item.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        item : :obj:`object`</span>
+<span class="sd">            The item to determine its index.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The index of the item if exists, None otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_item_index_map</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">index</span></div>
+    
+<div class="viewcode-block" id="Vocabulary.item_from_index"><a class="viewcode-back" href="../../core.html#core.vocabulary.Vocabulary.item_from_index">[docs]</a>    <span class="k">def</span> <span class="nf">item_from_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieves the item given its index.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        index : int</span>
+<span class="sd">            The index of the item.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`object`</span>
+<span class="sd">            The item if exists.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">item</span></div>
+
+<div class="viewcode-block" id="Vocabulary.indices_from_items"><a class="viewcode-back" href="../../core.html#core.vocabulary.Vocabulary.indices_from_items">[docs]</a>    <span class="k">def</span> <span class="nf">indices_from_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieves the indices given a set of items.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        items : :obj:`list`</span>
+<span class="sd">            The list of items to determine its indices.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`list` of :obj:`int`</span>
+<span class="sd">            The indices of the items that exist. If no item is found None is presented.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_from_item</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="n">indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">indices</span></div>
+    
+<div class="viewcode-block" id="Vocabulary.items_from_indices"><a class="viewcode-back" href="../../core.html#core.vocabulary.Vocabulary.items_from_indices">[docs]</a>    <span class="k">def</span> <span class="nf">items_from_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieves the items given a set of indices.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        indices : :obj:`list` of :obj:`int`</span>
+<span class="sd">            The list of indices to determine its items.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`list`</span>
+<span class="sd">            The items for the provided indices.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_from_index</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+            <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">items</span></div>
+
+<div class="viewcode-block" id="Vocabulary.is_eos_item"><a class="viewcode-back" href="../../core.html#core.vocabulary.Vocabulary.is_eos_item">[docs]</a>    <span class="k">def</span> <span class="nf">is_eos_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Determines whether or not the item is an end of sequence item.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        item : :obj:`object`</span>
+<span class="sd">            The item to validate.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the item is end of sequence item, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">is_eos</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_eos_item</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">is_eos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eos_item</span> <span class="o">==</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="n">is_eos</span></div>
+
+<div class="viewcode-block" id="Vocabulary.eos_item"><a class="viewcode-back" href="../../core.html#core.vocabulary.Vocabulary.eos_item">[docs]</a>    <span class="k">def</span> <span class="nf">eos_item</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Defines the end of sequence item.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`object`</span>
+<span class="sd">            The end of sequence item.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eos_item</span></div>
+
+<div class="viewcode-block" id="Vocabulary.is_numeric_item"><a class="viewcode-back" href="../../core.html#core.vocabulary.Vocabulary.is_numeric_item">[docs]</a>    <span class="k">def</span> <span class="nf">is_numeric_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Determines whether or not the item is a numeric item.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        item : :obj:`object`</span>
+<span class="sd">            The item to validate.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the item is a numeric item, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">is_numeric</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_numeric_item</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">is_numeric</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_numeric_item</span> <span class="o">==</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="n">is_numeric</span></div>
+
+<div class="viewcode-block" id="Vocabulary.numeric_item"><a class="viewcode-back" href="../../core.html#core.vocabulary.Vocabulary.numeric_item">[docs]</a>    <span class="k">def</span> <span class="nf">numeric_item</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Defines the numeric item.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`object`</span>
+<span class="sd">            The numeric item.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_numeric_item</span></div>
+
+<div class="viewcode-block" id="Vocabulary.is_unknown_item"><a class="viewcode-back" href="../../core.html#core.vocabulary.Vocabulary.is_unknown_item">[docs]</a>    <span class="k">def</span> <span class="nf">is_unknown_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Determines whether or not the item is an unknown item.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        item : :obj:`object`</span>
+<span class="sd">            The item to validate.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the item is an unknown item, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">is_unknown</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_unknown_item</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">is_unknown</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unknown_item</span> <span class="o">==</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="n">is_unknown</span></div>
+
+<div class="viewcode-block" id="Vocabulary.unknown_item"><a class="viewcode-back" href="../../core.html#core.vocabulary.Vocabulary.unknown_item">[docs]</a>    <span class="k">def</span> <span class="nf">unknown_item</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Defines the unknown item.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`object`</span>
+<span class="sd">            The unknown item.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unknown_item</span></div>
+
+<div class="viewcode-block" id="Vocabulary.items"><a class="viewcode-back" href="../../core.html#core.vocabulary.Vocabulary.items">[docs]</a>    <span class="k">def</span> <span class="nf">items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The items corresponding to the vocabulary.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`list`</span>
+<span class="sd">            A copy of the items corresponding to the vocabulary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Vocabulary.count"><a class="viewcode-back" href="../../core.html#core.vocabulary.Vocabulary.count">[docs]</a>    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The number of items in the vocabulary.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The item count.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">length</span></div>
+
+<div class="viewcode-block" id="Vocabulary.remove_all"><a class="viewcode-back" href="../../core.html#core.vocabulary.Vocabulary.remove_all">[docs]</a>    <span class="k">def</span> <span class="nf">remove_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Removes all the items and indices.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        This does not remove the eos_item, numeric_item or unknown_item.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_items</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_item_index_map</span> <span class="o">=</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="Vocabulary.copy"><a class="viewcode-back" href="../../core.html#core.vocabulary.Vocabulary.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Makes copy of this instance.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`Vocabulary`</span>
+<span class="sd">            The copy of this instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">vocabulary</span> <span class="o">=</span> <span class="n">Vocabulary</span><span class="p">(</span>
+            <span class="n">items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+            <span class="n">item_index_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_item_index_map</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+            <span class="n">eos_item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eos_item</span><span class="p">(),</span>
+            <span class="n">numeric_item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">numeric_item</span><span class="p">(),</span>
+            <span class="n">unknown_item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unknown_item</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">vocabulary</span></div>
+
+<div class="viewcode-block" id="Vocabulary.long_tensor_from_items"><a class="viewcode-back" href="../../core.html#core.vocabulary.Vocabulary.long_tensor_from_items">[docs]</a>    <span class="k">def</span> <span class="nf">long_tensor_from_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A collection of items represented as a long tensor.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`torch.autograd.variable.Variable` of :obj:`torch.LongTensor`</span>
+<span class="sd">            The items represented as a long tensor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">items_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+        <span class="n">tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">items_length</span><span class="p">)</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices_from_items</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
+            <span class="n">tensor</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="k">return</span> <span class="n">Variable</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Vocabulary.one_hot_tensor_from_item"><a class="viewcode-back" href="../../core.html#core.vocabulary.Vocabulary.one_hot_tensor_from_item">[docs]</a>    <span class="k">def</span> <span class="nf">one_hot_tensor_from_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A collection of items represented as a one hot tensor.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`torch.autograd.variable.Variable` of :obj:`torch.FloatTensor`</span>
+<span class="sd">            The items represented as a one hot tensor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_from_item</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="n">tensor</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">Variable</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Vocabulary.one_hot_matrix_tensor_from_items"><a class="viewcode-back" href="../../core.html#core.vocabulary.Vocabulary.one_hot_matrix_tensor_from_items">[docs]</a>    <span class="k">def</span> <span class="nf">one_hot_matrix_tensor_from_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A collection of items represented as a one hot matrix.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`torch.autograd.variable.Variable` of :obj:`torch.FloatTensor`</span>
+<span class="sd">            The items represented as a one hot matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">items_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+        <span class="n">tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">items_length</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices_from_items</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">item_index</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">indices</span><span class="p">):</span>
+            <span class="n">tensor</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="n">item_index</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">Variable</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Elmar Langholz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

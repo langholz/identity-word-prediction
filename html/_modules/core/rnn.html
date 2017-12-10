@@ -1,0 +1,453 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>core.rnn &#8212; Identity word completion 0.8 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for core.rnn</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">from</span> <span class="nn">torch.autograd</span> <span class="k">import</span> <span class="n">Variable</span>
+
+<div class="viewcode-block" id="RNNConfig"><a class="viewcode-back" href="../../core.html#core.rnn.RNNConfig">[docs]</a><span class="k">class</span> <span class="nc">RNNConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Defines a recurrent neural network configuration.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    term_count : :obj:`int`</span>
+<span class="sd">        The amount of terms or items in the vocabulary.</span>
+<span class="sd">    embedding_size : :obj:`int`</span>
+<span class="sd">        The size of the embedding.</span>
+<span class="sd">    hidden_size : :obj:`int`</span>
+<span class="sd">        The amount of hidden units per layer.</span>
+<span class="sd">    layer_count : :obj:`int`, optional</span>
+<span class="sd">        The amount of layers. By default, we create two layers.</span>
+<span class="sd">    type : :obj:`str`, optional</span>
+<span class="sd">        The type of recurrent neural network to create: &#39;LSTM&#39; or &#39;GRU&#39;.</span>
+<span class="sd">        By default, we use GRU.</span>
+<span class="sd">    init_weight_randomly : :obj:`bool`, optional</span>
+<span class="sd">        Determines whether or not the weights should be initialized randomly.</span>
+<span class="sd">        By default, we do not initialize the weights randomly.</span>
+<span class="sd">    dropout : :obj:`float`, optional</span>
+<span class="sd">        The dropout parameter to use. By default, the value is zero (no dropout).</span>
+<span class="sd">    tie_weights : :obj:`bool`, optional</span>
+<span class="sd">        Determines whether or not the weights should be tied.</span>
+<span class="sd">        By default, weights are not tied.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">term_count</span><span class="p">,</span>
+        <span class="n">embedding_size</span><span class="p">,</span>
+        <span class="n">hidden_size</span><span class="p">,</span>
+        <span class="n">layer_count</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;GRU&quot;</span><span class="p">,</span>
+        <span class="n">init_weight_randomly</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">dropout</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">tie_weights</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes an instance of the `RNNConfig` class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        term_count : :obj:`int`</span>
+<span class="sd">            The amount of terms or items in the vocabulary.</span>
+<span class="sd">        embedding_size : :obj:`int`</span>
+<span class="sd">            The size of the embedding.</span>
+<span class="sd">        hidden_size : :obj:`int`</span>
+<span class="sd">            The amount of hidden units per layer.</span>
+<span class="sd">        layer_count : :obj:`int`</span>
+<span class="sd">            The amount of layers.</span>
+<span class="sd">        type : :obj:`str`</span>
+<span class="sd">            The type of recurrent neural network to create: &#39;LSTM&#39; or &#39;GRU&#39;.</span>
+<span class="sd">        init_weight_randomly : :obj:`bool`</span>
+<span class="sd">            Determines whether or not the weights should be initialized randomly.</span>
+<span class="sd">        dropout : :obj:`float`</span>
+<span class="sd">            The dropout parameter to use.</span>
+<span class="sd">        tie_weights : :obj:`bool`</span>
+<span class="sd">            Determines whether or not the weights should be tied.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">term_count</span> <span class="o">=</span> <span class="n">term_count</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">embedding_size</span> <span class="o">=</span> <span class="n">embedding_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span> <span class="o">=</span> <span class="n">hidden_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layer_count</span> <span class="o">=</span> <span class="n">layer_count</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_weight_randomly</span> <span class="o">=</span> <span class="n">init_weight_randomly</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tie_weights</span> <span class="o">=</span> <span class="n">tie_weights</span>
+
+<div class="viewcode-block" id="RNNConfig.from_serialized"><a class="viewcode-back" href="../../core.html#core.rnn.RNNConfig.from_serialized">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_serialized</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">serialized</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates an instance of the `RNNConfig` class from a dictionary.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        serialized : :obj:`dict`</span>
+<span class="sd">            The dictionary containing the corresponding configuration.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`RNNConfig`</span>
+<span class="sd">            The configuration instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">serialized</span><span class="p">[</span><span class="s2">&quot;term_count&quot;</span><span class="p">],</span>
+            <span class="n">serialized</span><span class="p">[</span><span class="s2">&quot;embedding_size&quot;</span><span class="p">],</span>
+            <span class="n">serialized</span><span class="p">[</span><span class="s2">&quot;hidden_size&quot;</span><span class="p">],</span>
+            <span class="n">serialized</span><span class="p">[</span><span class="s2">&quot;layer_count&quot;</span><span class="p">],</span>
+            <span class="n">serialized</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span>
+            <span class="n">serialized</span><span class="p">[</span><span class="s2">&quot;init_weight_randomly&quot;</span><span class="p">],</span>
+            <span class="n">serialized</span><span class="p">[</span><span class="s2">&quot;dropout&quot;</span><span class="p">],</span>
+            <span class="n">serialized</span><span class="p">[</span><span class="s2">&quot;tie_weights&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">value</span></div>
+
+    <span class="k">def</span> <span class="nf">_validate_larger_or_equal_to_one</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; (&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;) is less than one&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_validate_larger_or_equal_to_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; (&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;) is less than zero&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_validate_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;LSTM&quot;</span><span class="p">,</span> <span class="s2">&quot;GRU&quot;</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;An invalid RNN type (&#39;&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">+</span> <span class="s2">&quot;&#39;)&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_validate_tie_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tie_weights</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">embedding_size</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">):</span>
+                <span class="n">error</span> <span class="o">=</span> <span class="s2">&quot;Tie weights option expects that embedding_size (&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">embedding_size</span><span class="p">)</span>
+                <span class="n">error</span> <span class="o">+=</span> <span class="s2">&quot;) equals hidden_size (&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_larger_or_equal_to_one</span><span class="p">(</span><span class="s2">&quot;term_count&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">term_count</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_larger_or_equal_to_one</span><span class="p">(</span><span class="s2">&quot;embedding_size&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_larger_or_equal_to_one</span><span class="p">(</span><span class="s2">&quot;hidden_size&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_larger_or_equal_to_one</span><span class="p">(</span><span class="s2">&quot;layer_count&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_count</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_type</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_larger_or_equal_to_zero</span><span class="p">(</span><span class="s2">&quot;dropout&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_tie_weights</span><span class="p">()</span>
+
+<div class="viewcode-block" id="RNNConfig.copy"><a class="viewcode-back" href="../../core.html#core.rnn.RNNConfig.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Makes a copy of the instance.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`RNNConfig`</span>
+<span class="sd">            The copy of the configuration.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">serialized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize</span><span class="p">()</span>
+        <span class="n">rnn_config</span> <span class="o">=</span> <span class="n">RNNConfig</span><span class="o">.</span><span class="n">from_serialized</span><span class="p">(</span><span class="n">serialized</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">rnn_config</span></div>
+
+<div class="viewcode-block" id="RNNConfig.serialize"><a class="viewcode-back" href="../../core.html#core.rnn.RNNConfig.serialize">[docs]</a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Serializes the instance as a dictionary.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`dict`</span>
+<span class="sd">            The configuration as a dictionary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;term_count&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">term_count</span><span class="p">,</span>
+            <span class="s2">&quot;embedding_size&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_size</span><span class="p">,</span>
+            <span class="s2">&quot;hidden_size&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">,</span>
+            <span class="s2">&quot;layer_count&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_count</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
+            <span class="s2">&quot;init_weight_randomly&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_weight_randomly</span><span class="p">,</span>
+            <span class="s2">&quot;dropout&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span>
+            <span class="s2">&quot;tie_weights&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tie_weights</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">value</span></div></div>
+
+<div class="viewcode-block" id="RNN"><a class="viewcode-back" href="../../core.html#core.rnn.RNN">[docs]</a><span class="k">class</span> <span class="nc">RNN</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Defines a recurrent neural network.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : :obj:`RNNConfig`</span>
+<span class="sd">        The recurrent neural network configuration.</span>
+<span class="sd">    dropout : :obj:`torch.nn.Dropout`</span>
+<span class="sd">        The dropout to use while training.</span>
+<span class="sd">    encoder: :obj:`torch.nn.Embedding`</span>
+<span class="sd">        The item encoder.</span>
+<span class="sd">    rnn : :obj:`torch.nn.Module`</span>
+<span class="sd">        The recurrent nerual network.</span>
+<span class="sd">    decoder : :obj:`torch.nn.Linear`</span>
+<span class="sd">        The item decoder.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes an instance of the `RNN` class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : :obj:`RNNConfig`</span>
+<span class="sd">            The configuration to use when initializing the instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">RNN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">dropout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">term_count</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">embedding_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rnn</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">type</span><span class="p">)(</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">embedding_size</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">layer_count</span><span class="p">,</span>
+            <span class="n">dropout</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">dropout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">term_count</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">tie_weights</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">weight</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">init_weight_randomly</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_init_weight</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_init_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">range_value</span> <span class="o">=</span> <span class="mf">0.1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">uniform_</span><span class="p">(</span><span class="o">-</span><span class="n">range_value</span><span class="p">,</span> <span class="n">range_value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">bias</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">fill_</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">uniform_</span><span class="p">(</span><span class="o">-</span><span class="n">range_value</span><span class="p">,</span> <span class="n">range_value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create_hidden_variable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
+        <span class="n">variable</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">layer_count</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">)</span><span class="o">.</span><span class="n">zero_</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">variable</span>
+
+<div class="viewcode-block" id="RNN.forward"><a class="viewcode-back" href="../../core.html#core.rnn.RNN.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">hidden</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Defines the computation performed at every call.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        input : :obj:``</span>
+<span class="sd">            The input.</span>
+<span class="sd">        hidden : :obj:`torch.autograd.Variable`</span>
+<span class="sd">            The hidden state.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`tuple` </span>
+<span class="sd">            The first value is the output and the second is the hidden state. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">encoded_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="nb">input</span><span class="p">))</span>
+        <span class="n">encoded_output</span><span class="p">,</span> <span class="n">hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rnn</span><span class="p">(</span><span class="n">encoded_input</span><span class="p">,</span> <span class="n">hidden</span><span class="p">)</span>
+        <span class="n">encoded_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">encoded_output</span><span class="p">)</span>
+        <span class="n">decoder_input</span> <span class="o">=</span> <span class="n">encoded_output</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">encoded_output</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">encoded_output</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">encoded_output</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">decoded_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="p">(</span><span class="n">decoder_input</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">decoded_output</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">encoded_output</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">encoded_output</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">decoded_output</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="n">hidden</span></div>
+
+<div class="viewcode-block" id="RNN.create_hidden"><a class="viewcode-back" href="../../core.html#core.rnn.RNN.create_hidden">[docs]</a>    <span class="k">def</span> <span class="nf">create_hidden</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates the recurrent neural network hidden state.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        batch_size : :obj:`int`, optional</span>
+<span class="sd">            The input batch size.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`torch.autograd.Variable`</span>
+<span class="sd">            The hidden state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">hidden</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">weight</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span><span class="o">.</span><span class="n">data</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;LSTM&quot;</span><span class="p">):</span>
+            <span class="n">hidden</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_create_hidden_variable</span><span class="p">(</span><span class="n">weight</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_hidden_variable</span><span class="p">(</span><span class="n">weight</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;GRU&quot;</span><span class="p">):</span>
+            <span class="n">hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_hidden_variable</span><span class="p">(</span><span class="n">weight</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;RNN type should be LSTM or GRU!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">hidden</span></div></div>
+
+<div class="viewcode-block" id="CharacterRNN"><a class="viewcode-back" href="../../core.html#core.rnn.CharacterRNN">[docs]</a><span class="k">class</span> <span class="nc">CharacterRNN</span><span class="p">(</span><span class="n">RNN</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Defines a character recurrent neural network.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : :obj:`RNNConfig`</span>
+<span class="sd">        The recurrent neural network configuration.</span>
+<span class="sd">    dropout : :obj:`torch.nn.Dropout`</span>
+<span class="sd">        The dropout to use while training.</span>
+<span class="sd">    encoder: :obj:`torch.nn.Embedding`</span>
+<span class="sd">        The item encoder.</span>
+<span class="sd">    rnn : :obj:`torch.nn.Module`</span>
+<span class="sd">        The recurrent nerual network.</span>
+<span class="sd">    decoder : :obj:`torch.nn.Linear`</span>
+<span class="sd">        The item decoder.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CharacterRNN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CharacterRNN.forward"><a class="viewcode-back" href="../../core.html#core.rnn.CharacterRNN.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">hidden</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Defines the computation performed at every call.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        input : :obj:``</span>
+<span class="sd">            The input.</span>
+<span class="sd">        hidden : :obj:`torch.autograd.Variable`</span>
+<span class="sd">            The hidden state.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`tuple` </span>
+<span class="sd">            The first value is the output and the second is the hidden state. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="nb">input</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">encoded_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="nb">input</span><span class="p">))</span>
+        <span class="n">encoder_input</span> <span class="o">=</span> <span class="n">encoded_input</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">encoded_output</span><span class="p">,</span> <span class="n">hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rnn</span><span class="p">(</span><span class="n">encoder_input</span><span class="p">,</span> <span class="n">hidden</span><span class="p">)</span>
+        <span class="n">encoded_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">encoded_output</span><span class="p">)</span>
+        <span class="n">decoder_input</span> <span class="o">=</span> <span class="n">encoded_output</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">decoded_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="p">(</span><span class="n">decoder_input</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">decoded_output</span><span class="p">,</span> <span class="n">hidden</span></div></div>
+
+<div class="viewcode-block" id="PersonalizedCharacterRNN"><a class="viewcode-back" href="../../core.html#core.rnn.PersonalizedCharacterRNN">[docs]</a><span class="k">class</span> <span class="nc">PersonalizedCharacterRNN</span><span class="p">(</span><span class="n">CharacterRNN</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Defines a personalized character recurrent neural network.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : :obj:`RNNConfig`</span>
+<span class="sd">        The recurrent neural network configuration.</span>
+<span class="sd">    dropout : :obj:`torch.nn.Dropout`</span>
+<span class="sd">        The dropout to use while training.</span>
+<span class="sd">    encoder: :obj:`torch.nn.Embedding`</span>
+<span class="sd">        The item encoder.</span>
+<span class="sd">    rnn : :obj:`torch.nn.Module`</span>
+<span class="sd">        The recurrent nerual network.</span>
+<span class="sd">    decoder : :obj:`torch.nn.Linear`</span>
+<span class="sd">        The item decoder.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes an instance of the `RNN` class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : :obj:`RNNConfig`</span>
+<span class="sd">            The configuration to use when initializing the instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PersonalizedCharacterRNN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PersonalizedCharacterRNN.transfer_from_rnn_with_extra_layers"><a class="viewcode-back" href="../../core.html#core.rnn.PersonalizedCharacterRNN.transfer_from_rnn_with_extra_layers">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">transfer_from_rnn_with_extra_layers</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">rnn</span><span class="p">,</span> <span class="n">layer_count</span><span class="p">,</span> <span class="n">use_cuda</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">fail_on_no_update</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates a personalized RNN by transfering weights from an existing RNN and adding extra layers.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rnn : :obj:`RNN`</span>
+<span class="sd">            The RNN to transfer the weights from.</span>
+<span class="sd">        layer_count : :obj:`int`</span>
+<span class="sd">            The number of extra layers to add.</span>
+<span class="sd">        use_cuda : :obj:`bool`, optional</span>
+<span class="sd">            Determines whether or not to use CUDA. By default, False.</span>
+<span class="sd">        fail_on_no_update : :obj:`bool`, optional</span>
+<span class="sd">            Determines whether or not to fail if no update. By default, True.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`PersonalizedCharacterRNN`</span>
+<span class="sd">            The personalized recurrent neural network.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">rnn</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">layer_count</span> <span class="o">+=</span> <span class="n">layer_count</span>
+        <span class="n">personalized_rnn</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">use_cuda</span><span class="p">):</span>
+            <span class="n">personalized_rnn</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+        <span class="n">updated_keys</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">forzen_keys</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">pretrained_state_dict</span> <span class="o">=</span> <span class="n">rnn</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
+        <span class="n">model_state_dict</span> <span class="o">=</span> <span class="n">personalized_rnn</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
+        <span class="n">updated_model_state_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">model_state_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">updated_model_state_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">key</span> <span class="ow">in</span> <span class="n">pretrained_state_dict</span><span class="p">):</span>
+                <span class="n">pretrained_value</span> <span class="o">=</span> <span class="n">pretrained_state_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="k">if</span> <span class="p">((</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="nb">type</span><span class="p">(</span><span class="n">pretrained_value</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">size</span><span class="p">()</span> <span class="o">==</span> <span class="n">pretrained_value</span><span class="o">.</span><span class="n">size</span><span class="p">())):</span>
+                    <span class="n">updated_model_state_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">pretrained_value</span>
+                    <span class="n">updated_keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;rnn.&quot;</span><span class="p">)):</span>
+                        <span class="n">forzen_keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                        <span class="n">updated_model_state_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="p">((</span><span class="n">fail_on_no_update</span><span class="p">)</span> <span class="ow">and</span> <span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">updated_keys</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">forzen_keys</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">))):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Did not transfer any values from existing RNN&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Created PersonalizedCharacterRNN with </span><span class="si">%d</span><span class="s2"> extra layers:&quot;</span> <span class="o">%</span> <span class="n">layer_count</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Transfered weights for the following keys: &quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">updated_keys</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Froze the following weights: &quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">forzen_keys</span><span class="p">))</span>
+
+        <span class="n">model_state_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">updated_model_state_dict</span><span class="p">)</span>
+        <span class="n">personalized_rnn</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">updated_model_state_dict</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">personalized_rnn</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Elmar Langholz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

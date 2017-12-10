@@ -1,0 +1,83 @@
+<html>
+    <title>Identity-based word prediction: Demo</title>
+    <head>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+        <script type="text/javascript" src="https://cdn.rawgit.com/prashantchaudhary/ddslick/master/jquery.ddslick.min.js" ></script>
+        <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,900,700,600,200">
+        <link rel= "stylesheet" type="text/css" href="{{ url_for('static', filename = 'styles/index.css') }}">
+        <link rel= "stylesheet" type="text/css" href="{{ url_for('static', filename = 'styles/overlayMenu.css') }}">
+        <script type="text/javascript">
+            var identity = ""
+            function forward() {
+                var context = encodeURIComponent($("#search").val())
+                var url = "/prediction?identity=" + identity + "&context=" + context + "&temperatures=1.0,0.9,0.8,0.7,0.6,0.5"
+                window.location.href = url
+                return false
+            }
+        </script>
+    </head>
+    <body>
+        <div id="overlayMenu" class="overlay">
+          <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+          <div class="overlay-content">
+            <a style="font-family:'Source Sans Pro',sans-serif;font-size:30px;" href="/">Demo</a>
+            <a style="font-family:'Source Sans Pro',sans-serif;font-size:30px;" href="/details">Details</a>
+            <a style="font-family:'Source Sans Pro',sans-serif;font-size:30px;" href="/about">About</a>
+          </div>
+        </div>
+        <span style="font-family:'Source Sans Pro',sans-serif;font-size:30px;cursor:pointer" onclick="openNav()">&#9776; Menu</span>
+        <br>
+        <br>
+        <br>
+        <span style="font-family:'Source Sans Pro',sans-serif;font-size:30px;">1. Select a character/identity to impersonate:</span>
+        <center><div id="identityDropdown"></div></center>
+        <br>
+        <br>
+        <span style="font-family:'Source Sans Pro',sans-serif;font-size:30px;">2. Type complete words to form the beginning of a text and press submit (<span style="font-family:'Source Sans Pro',sans-serif;font-size: 30px;">&#10140;</span>):</span>
+        <div class="flexsearch">
+            <div class="flexsearch--wrapper">
+                <form class="flexsearch--form" onsubmit="return forward()">
+                    <div class="flexsearch--input-wrapper">
+                        <input id="search" class="flexsearch--input" type="search" placeholder="Type the text to complete...">
+                    </div>
+                    <input class="flexsearch--submit" type="submit" value="&#10140;"/>
+                </form>
+            </div>
+        </div>
+        <p><center><label style="color:black;">by Elmar Langholz (langholz [at] gmail.com)</label></center></p>
+        <script>
+            var identityDropdownData = [
+                {
+                    text: "Homer",
+                    value: 1,
+                    selected: false,
+                    description: "Simpson",
+                    imageSrc: "{{ url_for('static', filename = 'images/homer_small.jpg') }}"
+                },
+                {
+                    text: "Sherlock",
+                    value: 2,
+                    selected: false,
+                    description: "Holmes",
+                    imageSrc: "{{ url_for('static', filename = 'images/sherlock_small.jpg') }}"
+                }
+            ];
+
+            $("#identityDropdown").ddslick({
+                data: identityDropdownData,
+                width: 150,
+                defaultSelectedIndex: 2,
+                onSelected: function(data) { identity = data.selectedData.text.toLowerCase() } 
+            });
+        </script>
+        <script>
+            function openNav() {
+                document.getElementById("overlayMenu").style.height = "100%";
+            }
+
+            function closeNav() {
+                document.getElementById("overlayMenu").style.height = "0%";
+            }
+        </script>
+    </body>
+</html>

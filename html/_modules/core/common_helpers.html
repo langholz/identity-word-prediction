@@ -1,0 +1,427 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>core.common_helpers &#8212; Identity word completion 0.8 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for core.common_helpers</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">import</span> <span class="nn">unidecode</span>
+<span class="kn">import</span> <span class="nn">unicodedata</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+
+<div class="viewcode-block" id="StringHelper"><a class="viewcode-back" href="../../core.html#core.common_helpers.StringHelper">[docs]</a><span class="k">class</span> <span class="nc">StringHelper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Defines a set of common string operations.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="StringHelper.ascii_from_unicode_transliteration"><a class="viewcode-back" href="../../core.html#core.common_helpers.StringHelper.ascii_from_unicode_transliteration">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">ascii_from_unicode_transliteration</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Transliterate unicode character string into an ascii string.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        str : :obj:`str`</span>
+<span class="sd">            A unicode character string to transliterate.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`str`</span>
+<span class="sd">            An ascii string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ascii_str</span> <span class="o">=</span> <span class="n">unidecode</span><span class="o">.</span><span class="n">unidecode</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ascii_str</span></div>
+
+<div class="viewcode-block" id="StringHelper.is_ascii_character"><a class="viewcode-back" href="../../core.html#core.common_helpers.StringHelper.is_ascii_character">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">is_ascii_character</span><span class="p">(</span><span class="n">character</span><span class="p">,</span> <span class="n">ascii_list</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">ascii_letters</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Determines whether or not a provided character is ascii.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        character : :obj:`str`</span>
+<span class="sd">            A character to validate.</span>
+<span class="sd">        ascii_list : :obj:`str`, optional</span>
+<span class="sd">            A string containing all the characters which are considered valid ascii values.</span>
+<span class="sd">            By default we include all lower and upper case letters from a to z. (string.ascii_letters)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`bool`</span>
+<span class="sd">            True if ascii, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">is_ascii</span> <span class="o">=</span> <span class="p">(</span><span class="n">unicodedata</span><span class="o">.</span><span class="n">category</span><span class="p">(</span><span class="n">character</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;Mn&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">character</span> <span class="ow">in</span> <span class="n">ascii_list</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">is_ascii</span></div>
+
+<div class="viewcode-block" id="StringHelper.ascii_from_unicode"><a class="viewcode-back" href="../../core.html#core.common_helpers.StringHelper.ascii_from_unicode">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">ascii_from_unicode</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">ascii_list</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">ascii_letters</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Converts a unicode character string into an ascii string.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        str : :obj:`str`</span>
+<span class="sd">            A unicode character string.</span>
+<span class="sd">        ascii_list : :obj:`str`, optional</span>
+<span class="sd">            A string containing all the characters which are considered valid ascii values.</span>
+<span class="sd">            By default we include all lower and upper case letters from a to z. (string.ascii_letters)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`str`</span>
+<span class="sd">            An ascii string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ascii_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">character</span> <span class="k">for</span> <span class="n">character</span> <span class="ow">in</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s2">&quot;NFD&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+                                  <span class="k">if</span> <span class="n">StringHelper</span><span class="o">.</span><span class="n">is_ascii_character</span><span class="p">(</span><span class="n">character</span><span class="p">,</span> <span class="n">ascii_list</span><span class="p">)]</span>
+        <span class="n">ascii_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ascii_values</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ascii_str</span></div>
+
+<div class="viewcode-block" id="StringHelper.tokenize_words"><a class="viewcode-back" href="../../core.html#core.common_helpers.StringHelper.tokenize_words">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">tokenize_words</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Splits a string into words and removes spaces.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        str : :obj:`str`</span>
+<span class="sd">            A string containing words.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`list` of :obj:`str`</span>
+<span class="sd">            The list of words.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="n">split</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="StringHelper.tokenize_words_iterator"><a class="viewcode-back" href="../../core.html#core.common_helpers.StringHelper.tokenize_words_iterator">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">tokenize_words_iterator</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generates words from a string.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        str : :obj:`str`</span>
+<span class="sd">            A string containing words.</span>
+
+<span class="sd">        Yields</span>
+<span class="sd">        ------</span>
+<span class="sd">        :obj:`str`</span>
+<span class="sd">            The next word in the string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">StringHelper</span><span class="o">.</span><span class="n">tokenize_words</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">word</span></div></div>
+
+<div class="viewcode-block" id="FileHelper"><a class="viewcode-back" href="../../core.html#core.common_helpers.FileHelper">[docs]</a><span class="k">class</span> <span class="nc">FileHelper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Defines a set of common file operations.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="FileHelper.read_file"><a class="viewcode-back" href="../../core.html#core.common_helpers.FileHelper.read_file">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">read_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reads a file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path : :obj:`str`</span>
+<span class="sd">            The path to the file to read.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`str`</span>
+<span class="sd">            The file&#39;s content.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">file</span></div>
+
+<div class="viewcode-block" id="FileHelper.read_file_as_ascii"><a class="viewcode-back" href="../../core.html#core.common_helpers.FileHelper.read_file_as_ascii">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">read_file_as_ascii</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reads a file and transliterates the content to ascii.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path : :obj:`str`</span>
+<span class="sd">            The path to the file to read.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`str`</span>
+<span class="sd">            The file&#39;s content as ascii.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="n">read_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="n">StringHelper</span><span class="o">.</span><span class="n">ascii_from_unicode_transliteration</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">file</span></div>
+
+<div class="viewcode-block" id="FileHelper.read_lines_iterator"><a class="viewcode-back" href="../../core.html#core.common_helpers.FileHelper.read_lines_iterator">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">read_lines_iterator</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generates lines by reading a file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path : :obj:`str`</span>
+<span class="sd">            The path to the file to read.</span>
+
+<span class="sd">        Yields</span>
+<span class="sd">        ------</span>
+<span class="sd">        :obj:`str`</span>
+<span class="sd">            The next line in the file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fin</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">line</span></div>
+
+<div class="viewcode-block" id="FileHelper.read_lines_as_ascii_iterator"><a class="viewcode-back" href="../../core.html#core.common_helpers.FileHelper.read_lines_as_ascii_iterator">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">read_lines_as_ascii_iterator</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generates lines as ascii by reading a file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path : :obj:`str`</span>
+<span class="sd">            The path to the file to read.</span>
+
+<span class="sd">        Yields</span>
+<span class="sd">        ------</span>
+<span class="sd">        :obj:`str`</span>
+<span class="sd">            The next line as ascii in the file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">read_lines_iterator</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">StringHelper</span><span class="o">.</span><span class="n">ascii_from_unicode_transliteration</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FileHelper.read_lines"><a class="viewcode-back" href="../../core.html#core.common_helpers.FileHelper.read_lines">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">read_lines</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reads a file&#39;s lines.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path : :obj:`str`</span>
+<span class="sd">            The path to the file to read.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`str`</span>
+<span class="sd">            The file&#39;s lines.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">FileHelper</span><span class="o">.</span><span class="n">read_lines_iterator</span><span class="p">(</span><span class="n">file_path</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">lines</span></div>
+
+<div class="viewcode-block" id="FileHelper.read_lines_as_ascii"><a class="viewcode-back" href="../../core.html#core.common_helpers.FileHelper.read_lines_as_ascii">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">read_lines_as_ascii</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reads a file&#39;s lines as ascii.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path : :obj:`str`</span>
+<span class="sd">            The path to the file to read.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`str`</span>
+<span class="sd">            The file&#39;s lines as ascii.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">FileHelper</span><span class="o">.</span><span class="n">read_lines_as_ascii_iterator</span><span class="p">(</span><span class="n">file_path</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">lines</span></div></div>
+
+<div class="viewcode-block" id="TorchHelper"><a class="viewcode-back" href="../../core.html#core.common_helpers.TorchHelper">[docs]</a><span class="k">class</span> <span class="nc">TorchHelper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Defines a set of common torch operations.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="TorchHelper.set_seed"><a class="viewcode-back" href="../../core.html#core.common_helpers.TorchHelper.set_seed">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">set_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">,</span> <span class="n">use_cuda</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the seed for generating random numbers&quot;&quot;&quot;</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="n">use_cuda</span><span class="p">)</span> <span class="k">else</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TorchHelper.load"><a class="viewcode-back" href="../../core.html#core.common_helpers.TorchHelper.load">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">use_cuda</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Loads an object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path : :obj:`str`</span>
+<span class="sd">            The path to the object to load.</span>
+<span class="sd">        use_cuda : :obj:`bool`, optional</span>
+<span class="sd">            Determines whether or not to move the parameters to the GPU.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`object`</span>
+<span class="sd">            The loaded object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+            <span class="n">torch_object</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fin</span><span class="p">,</span> <span class="n">map_location</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">storage</span><span class="p">,</span> <span class="n">loc</span><span class="p">:</span> <span class="n">storage</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">use_cuda</span><span class="p">):</span>
+            <span class="n">torch_object</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">torch_object</span></div>
+
+<div class="viewcode-block" id="TorchHelper.save"><a class="viewcode-back" href="../../core.html#core.common_helpers.TorchHelper.save">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="n">torch_object</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Saves an object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        torch_object : :obj:`object`</span>
+<span class="sd">            The object to save.</span>
+<span class="sd">        file_path : :obj:`str`</span>
+<span class="sd">            The path to the file to save the object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">torch_object</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TorchHelper.create_adam_optimizer"><a class="viewcode-back" href="../../core.html#core.common_helpers.TorchHelper.create_adam_optimizer">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">create_adam_optimizer</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates an ADAM optimizer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parameters : :obj:`iterable`</span>
+<span class="sd">            The iterable set of parameters to optimize.</span>
+<span class="sd">        learning_rate : :obj:`float`</span>
+<span class="sd">            The learning rate.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`Adam`</span>
+<span class="sd">            The constructed ADAM optimizer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">lr</span> <span class="o">=</span> <span class="n">learning_rate</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">optimizer</span></div>
+
+<div class="viewcode-block" id="TorchHelper.create_sgd_optimizer"><a class="viewcode-back" href="../../core.html#core.common_helpers.TorchHelper.create_sgd_optimizer">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">create_sgd_optimizer</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates an SGD optimizer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parameters : :obj:`iterable`</span>
+<span class="sd">            The iterable set of parameters to optimize.</span>
+<span class="sd">        learning_rate : :obj:`float`</span>
+<span class="sd">            The learning rate.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`SGD`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">lr</span> <span class="o">=</span> <span class="n">learning_rate</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">optimizer</span></div>
+
+<div class="viewcode-block" id="TorchHelper.create_cross_entropy_loss"><a class="viewcode-back" href="../../core.html#core.common_helpers.TorchHelper.create_cross_entropy_loss">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">create_cross_entropy_loss</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;Creates a cross entropy loss cirterion.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`torch.nn.modules.loss.CrossEntropyLoss`</span>
+<span class="sd">            The criterion.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">criterion</span></div>
+
+<div class="viewcode-block" id="TorchHelper.prevent_exploding_gradient"><a class="viewcode-back" href="../../core.html#core.common_helpers.TorchHelper.prevent_exploding_gradient">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">prevent_exploding_gradient</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">clip_grad_max_norm</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">):</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">clip_grad_norm</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">clip_grad_max_norm</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
+            <span class="n">parameter</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">add_</span><span class="p">(</span><span class="o">-</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">parameter</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="TimeHelper"><a class="viewcode-back" href="../../core.html#core.common_helpers.TimeHelper">[docs]</a><span class="k">class</span> <span class="nc">TimeHelper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Defines a set of common time operations.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="TimeHelper.time_delta"><a class="viewcode-back" href="../../core.html#core.common_helpers.TimeHelper.time_delta">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">time_delta</span><span class="p">(</span><span class="n">delta</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculates the time given the delta.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        delta : :obj:`float`</span>
+<span class="sd">            The delta.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`str`</span>
+<span class="sd">            A string containing the minutes and seconds.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">minutes</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">delta</span> <span class="o">/</span> <span class="mi">60</span><span class="p">)</span>
+        <span class="n">seconds</span> <span class="o">=</span> <span class="n">delta</span> <span class="o">-</span> <span class="p">(</span><span class="n">minutes</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">m </span><span class="si">%d</span><span class="s2">s&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">minutes</span><span class="p">,</span> <span class="n">seconds</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TimeHelper.time_since"><a class="viewcode-back" href="../../core.html#core.common_helpers.TimeHelper.time_since">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">time_since</span><span class="p">(</span><span class="n">since</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculates the time since the provided value.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        since : :obj:`float`</span>
+<span class="sd">            The reference time.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`str`</span>
+<span class="sd">            A string containing the minutes and seconds since the reference time. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">since</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="n">TimeHelper</span><span class="o">.</span><span class="n">time_delta</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">time</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Elmar Langholz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

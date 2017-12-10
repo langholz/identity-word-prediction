@@ -1,0 +1,85 @@
+<html>
+    <title>Identity-based word prediction: About</title>
+    <head>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,900,700,600,200">
+        <link rel= "stylesheet" type="text/css" href="{{ url_for('static', filename = 'styles/overlayMenu.css') }}">
+        <style type="text/css">
+            .div-center {
+                padding: 25px;
+                margin: 25px;
+                font-family:'Source Sans Pro',sans-serif;
+                font-size: 18px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="overlayMenu" class="overlay">
+          <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+          <div class="overlay-content">
+            <a style="font-family:'Source Sans Pro',sans-serif;font-size:30px;" href="/">Demo</a>
+            <a style="font-family:'Source Sans Pro',sans-serif;font-size:30px;" href="/details">Details</a>
+            <a style="font-family:'Source Sans Pro',sans-serif;font-size:30px;" href="/about">About</a>
+          </div>
+        </div>
+        <span style="font-family:'Source Sans Pro',sans-serif;font-size:30px;cursor:pointer" onclick="openNav()">&#9776; Menu</span>
+        <div id="about" class="div-center">
+            <h3>Checkout the <a href="#">pitch slide deck</a></h3>
+
+            <h3>What is this?</h3>
+
+            <p>This is an application that demonstrates identity-based text word and sentence prediction through <a href="https://en.wikipedia.org/wiki/Language_model">language models</a> created using <a href="https://www.python.org/">Python 3.6.2</a>, <a href="http://pytorch.org/">PyTorch 0.2.0_3</a> and <a href="http://flask.pocoo.org/">Flask</a>.</p>
+
+            <h3>Who is it for?</h3>
+
+            <p>This application and its resources have been created for the University of Illinois at Urbana-Champaign <a href="http://online.illinois.edu/mcs-ds">Master of Computer Science in Data Science</a> CS410 Text Information Systems class.
+            However, it is for anyone and everyone who like to tinker and play with technology.</p>
+
+            <h3>How does it work?</h3>
+
+            <p>At the root of the application two character-level <a href="https://en.wikipedia.org/wiki/Language_model#Neural_language_models">neural language models</a> (one for Homer Simpson and the second for Sherlock Holmes) were created using a <a href="https://en.wikipedia.org/wiki/Recurrent_neural_network">Recurrent Neural Network</a> with <a href="https://en.wikipedia.org/wiki/Long_short-term_memory">Long short-term memory</a> (RNN-LSTM) layers.
+            <p>First, a two layer generic identity model was trained using the Cornell University Movie Dialog Corpus. Then, the identity models were constructed by copying the generic identity model layers, freezing them and adding two more identity layers after them. Since the first two layers of the model (the generic identity layers) were frozen, upon training, the last two layers were updated to encapsulate the specific identity of the character.</p>
+
+            <center><img src="{{ url_for('static', filename = 'images/model.png') }}" width="296" height="401"></center>
+
+            <h3>What future improvements would you perform?</h3>
+
+            <h4>Model improvements:</h4>
+
+            <ul>
+                <li> Experiment with implementing and using <a href="https://en.wikipedia.org/wiki/Beam_search">beam search</a> to improve the generation of words, sentences and reduce typos.</li>
+                <li> Increase the length of the training sequences so that it spans a paragraph.</li>
+                <li> From the same model, allow for generating text from the generic identity layers directly without taking into account the character identity layers.</li>
+                <li> Reproduce this same experiment with a word-level language model.</li>
+                <li> Export the model using the <a href="https://onnx.ai/">Open Neural Network Exchange</a> format.</li>
+            </ul>
+
+            <h4>Application improvements:</h4>
+
+            <ul>
+                <li> Create a mobile device application that leverages these models.</li>
+                <li> Demonstrate that the model also performs word completion.</li>
+            </ul>
+
+            <h3>What is it missing?</h3>
+
+            <ul>
+                <li> Other languages.</li>
+            </ul>
+
+            <h3>Who made it?</h3>
+
+            <p>Hello! My name is Elmar Langholz and I enjoy solving complex real world problems with technology. Feel free to checkout my <a href="https://github.com/langholz">github repos</a> or contact me through <a href="https://www.linkedin.com/in/langholz">linkedin</a>.</p>
+        </div>
+        <p><center><label style="color:black;">by Elmar Langholz (langholz [at] gmail.com)</label></center></p>
+        <script>
+            function openNav() {
+                document.getElementById("overlayMenu").style.height = "100%";
+            }
+
+            function closeNav() {
+                document.getElementById("overlayMenu").style.height = "0%";
+            }
+        </script>
+    </body>
+</html>

@@ -1,0 +1,5 @@
+unidecode
+tqdm
+torch
+nltk
+flask

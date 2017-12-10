@@ -1,0 +1,1943 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>core package &#8212; Identity word completion 0.8 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="core-package">
+<h1>core package<a class="headerlink" href="#core-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-core.common_helpers">
+<span id="core-common-helpers-module"></span><h2>core.common_helpers module<a class="headerlink" href="#module-core.common_helpers" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="core.common_helpers.FileHelper">
+<em class="property">class </em><code class="descclassname">core.common_helpers.</code><code class="descname">FileHelper</code><a class="reference internal" href="_modules/core/common_helpers.html#FileHelper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.common_helpers.FileHelper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Defines a set of common file operations.</p>
+<dl class="staticmethod">
+<dt id="core.common_helpers.FileHelper.read_file">
+<em class="property">static </em><code class="descname">read_file</code><span class="sig-paren">(</span><em>file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/common_helpers.html#FileHelper.read_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.common_helpers.FileHelper.read_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a>) – The path to the file to read.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The file’s content.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="core.common_helpers.FileHelper.read_file_as_ascii">
+<em class="property">static </em><code class="descname">read_file_as_ascii</code><span class="sig-paren">(</span><em>file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/common_helpers.html#FileHelper.read_file_as_ascii"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.common_helpers.FileHelper.read_file_as_ascii" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a file and transliterates the content to ascii.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a>) – The path to the file to read.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The file’s content as ascii.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="core.common_helpers.FileHelper.read_lines">
+<em class="property">static </em><code class="descname">read_lines</code><span class="sig-paren">(</span><em>file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/common_helpers.html#FileHelper.read_lines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.common_helpers.FileHelper.read_lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a file’s lines.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a>) – The path to the file to read.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The file’s lines.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="core.common_helpers.FileHelper.read_lines_as_ascii">
+<em class="property">static </em><code class="descname">read_lines_as_ascii</code><span class="sig-paren">(</span><em>file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/common_helpers.html#FileHelper.read_lines_as_ascii"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.common_helpers.FileHelper.read_lines_as_ascii" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a file’s lines as ascii.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a>) – The path to the file to read.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The file’s lines as ascii.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="core.common_helpers.FileHelper.read_lines_as_ascii_iterator">
+<em class="property">static </em><code class="descname">read_lines_as_ascii_iterator</code><span class="sig-paren">(</span><em>file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/common_helpers.html#FileHelper.read_lines_as_ascii_iterator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.common_helpers.FileHelper.read_lines_as_ascii_iterator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates lines as ascii by reading a file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a>) – The path to the file to read.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a> – The next line as ascii in the file.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="core.common_helpers.FileHelper.read_lines_iterator">
+<em class="property">static </em><code class="descname">read_lines_iterator</code><span class="sig-paren">(</span><em>file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/common_helpers.html#FileHelper.read_lines_iterator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.common_helpers.FileHelper.read_lines_iterator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates lines by reading a file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a>) – The path to the file to read.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a> – The next line in the file.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="core.common_helpers.StringHelper">
+<em class="property">class </em><code class="descclassname">core.common_helpers.</code><code class="descname">StringHelper</code><a class="reference internal" href="_modules/core/common_helpers.html#StringHelper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.common_helpers.StringHelper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Defines a set of common string operations.</p>
+<dl class="staticmethod">
+<dt id="core.common_helpers.StringHelper.ascii_from_unicode">
+<em class="property">static </em><code class="descname">ascii_from_unicode</code><span class="sig-paren">(</span><em>str</em>, <em>ascii_list='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/common_helpers.html#StringHelper.ascii_from_unicode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.common_helpers.StringHelper.ascii_from_unicode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a unicode character string into an ascii string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>str</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a>) – A unicode character string.</li>
+<li><strong>ascii_list</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a>, optional) – A string containing all the characters which are considered valid ascii values.
+By default we include all lower and upper case letters from a to z. (string.ascii_letters)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An ascii string.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="core.common_helpers.StringHelper.ascii_from_unicode_transliteration">
+<em class="property">static </em><code class="descname">ascii_from_unicode_transliteration</code><span class="sig-paren">(</span><em>str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/common_helpers.html#StringHelper.ascii_from_unicode_transliteration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.common_helpers.StringHelper.ascii_from_unicode_transliteration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transliterate unicode character string into an ascii string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>str</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a>) – A unicode character string to transliterate.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An ascii string.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="core.common_helpers.StringHelper.is_ascii_character">
+<em class="property">static </em><code class="descname">is_ascii_character</code><span class="sig-paren">(</span><em>character</em>, <em>ascii_list='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/common_helpers.html#StringHelper.is_ascii_character"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.common_helpers.StringHelper.is_ascii_character" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines whether or not a provided character is ascii.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>character</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a>) – A character to validate.</li>
+<li><strong>ascii_list</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a>, optional) – A string containing all the characters which are considered valid ascii values.
+By default we include all lower and upper case letters from a to z. (string.ascii_letters)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True if ascii, False otherwise.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">bool</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="core.common_helpers.StringHelper.tokenize_words">
+<em class="property">static </em><code class="descname">tokenize_words</code><span class="sig-paren">(</span><em>str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/common_helpers.html#StringHelper.tokenize_words"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.common_helpers.StringHelper.tokenize_words" title="Permalink to this definition">¶</a></dt>
+<dd><p>Splits a string into words and removes spaces.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>str</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a>) – A string containing words.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The list of words.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-obj docutils literal"><span class="pre">list</span></code> of <a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="core.common_helpers.StringHelper.tokenize_words_iterator">
+<em class="property">static </em><code class="descname">tokenize_words_iterator</code><span class="sig-paren">(</span><em>str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/common_helpers.html#StringHelper.tokenize_words_iterator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.common_helpers.StringHelper.tokenize_words_iterator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates words from a string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>str</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a>) – A string containing words.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a> – The next word in the string.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="core.common_helpers.TimeHelper">
+<em class="property">class </em><code class="descclassname">core.common_helpers.</code><code class="descname">TimeHelper</code><a class="reference internal" href="_modules/core/common_helpers.html#TimeHelper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.common_helpers.TimeHelper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Defines a set of common time operations.</p>
+<dl class="staticmethod">
+<dt id="core.common_helpers.TimeHelper.time_delta">
+<em class="property">static </em><code class="descname">time_delta</code><span class="sig-paren">(</span><em>delta</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/common_helpers.html#TimeHelper.time_delta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.common_helpers.TimeHelper.time_delta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the time given the delta.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>delta</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">float</span></code></a>) – The delta.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A string containing the minutes and seconds.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="core.common_helpers.TimeHelper.time_since">
+<em class="property">static </em><code class="descname">time_since</code><span class="sig-paren">(</span><em>since</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/common_helpers.html#TimeHelper.time_since"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.common_helpers.TimeHelper.time_since" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the time since the provided value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>since</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">float</span></code></a>) – The reference time.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A string containing the minutes and seconds since the reference time.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="core.common_helpers.TorchHelper">
+<em class="property">class </em><code class="descclassname">core.common_helpers.</code><code class="descname">TorchHelper</code><a class="reference internal" href="_modules/core/common_helpers.html#TorchHelper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.common_helpers.TorchHelper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Defines a set of common torch operations.</p>
+<dl class="staticmethod">
+<dt id="core.common_helpers.TorchHelper.create_adam_optimizer">
+<em class="property">static </em><code class="descname">create_adam_optimizer</code><span class="sig-paren">(</span><em>parameters</em>, <em>learning_rate</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/common_helpers.html#TorchHelper.create_adam_optimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.common_helpers.TorchHelper.create_adam_optimizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an ADAM optimizer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>parameters</strong> (<code class="xref py py-obj docutils literal"><span class="pre">iterable</span></code>) – The iterable set of parameters to optimize.</li>
+<li><strong>learning_rate</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">float</span></code></a>) – The learning rate.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The constructed ADAM optimizer.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-obj docutils literal"><span class="pre">Adam</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="core.common_helpers.TorchHelper.create_cross_entropy_loss">
+<em class="property">static </em><code class="descname">create_cross_entropy_loss</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/common_helpers.html#TorchHelper.create_cross_entropy_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.common_helpers.TorchHelper.create_cross_entropy_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a cross entropy loss cirterion.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The criterion.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-obj docutils literal"><span class="pre">torch.nn.modules.loss.CrossEntropyLoss</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="core.common_helpers.TorchHelper.create_sgd_optimizer">
+<em class="property">static </em><code class="descname">create_sgd_optimizer</code><span class="sig-paren">(</span><em>parameters</em>, <em>learning_rate</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/common_helpers.html#TorchHelper.create_sgd_optimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.common_helpers.TorchHelper.create_sgd_optimizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an SGD optimizer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>parameters</strong> (<code class="xref py py-obj docutils literal"><span class="pre">iterable</span></code>) – The iterable set of parameters to optimize.</li>
+<li><strong>learning_rate</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">float</span></code></a>) – The learning rate.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-obj docutils literal"><span class="pre">SGD</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="core.common_helpers.TorchHelper.load">
+<em class="property">static </em><code class="descname">load</code><span class="sig-paren">(</span><em>file_path</em>, <em>use_cuda=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/common_helpers.html#TorchHelper.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.common_helpers.TorchHelper.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads an object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>file_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a>) – The path to the object to load.</li>
+<li><strong>use_cuda</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">bool</span></code></a>, optional) – Determines whether or not to move the parameters to the GPU.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The loaded object.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="core.common_helpers.TorchHelper.prevent_exploding_gradient">
+<em class="property">static </em><code class="descname">prevent_exploding_gradient</code><span class="sig-paren">(</span><em>model</em>, <em>clip_grad_max_norm</em>, <em>learning_rate</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/common_helpers.html#TorchHelper.prevent_exploding_gradient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.common_helpers.TorchHelper.prevent_exploding_gradient" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="core.common_helpers.TorchHelper.save">
+<em class="property">static </em><code class="descname">save</code><span class="sig-paren">(</span><em>torch_object</em>, <em>file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/common_helpers.html#TorchHelper.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.common_helpers.TorchHelper.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves an object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>torch_object</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a>) – The object to save.</li>
+<li><strong>file_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a>) – The path to the file to save the object.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="core.common_helpers.TorchHelper.set_seed">
+<em class="property">static </em><code class="descname">set_seed</code><span class="sig-paren">(</span><em>seed</em>, <em>use_cuda=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/common_helpers.html#TorchHelper.set_seed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.common_helpers.TorchHelper.set_seed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the seed for generating random numbers</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-core.corpus">
+<span id="core-corpus-module"></span><h2>core.corpus module<a class="headerlink" href="#module-core.corpus" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="core.corpus.Corpus">
+<em class="property">class </em><code class="descclassname">core.corpus.</code><code class="descname">Corpus</code><span class="sig-paren">(</span><em>train_file_path</em>, <em>validation_file_path</em>, <em>test_file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/corpus.html#Corpus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.corpus.Corpus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Defines a <cite>Corpus</cite>.</p>
+<dl class="attribute">
+<dt id="core.corpus.Corpus.train_file_path">
+<code class="descname">train_file_path</code><a class="headerlink" href="#core.corpus.Corpus.train_file_path" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a> – The path to the train data file.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="core.corpus.Corpus.train">
+<code class="descname">train</code><a class="headerlink" href="#core.corpus.Corpus.train" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-obj docutils literal"><span class="pre">torch.LongTensor</span></code> – The trained data represented as indices from the constructed vocabulary.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="core.corpus.Corpus.validation_file_path">
+<code class="descname">validation_file_path</code><a class="headerlink" href="#core.corpus.Corpus.validation_file_path" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a> – The path to the validation data file.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="core.corpus.Corpus.validation">
+<code class="descname">validation</code><a class="headerlink" href="#core.corpus.Corpus.validation" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-obj docutils literal"><span class="pre">torch.LongTensor</span></code> – The validation data represented as indices from the constructed vocabulary.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="core.corpus.Corpus.test_file_path">
+<code class="descname">test_file_path</code><a class="headerlink" href="#core.corpus.Corpus.test_file_path" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a> – The path to the test data file.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="core.corpus.Corpus.test">
+<code class="descname">test</code><a class="headerlink" href="#core.corpus.Corpus.test" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-obj docutils literal"><span class="pre">torch.LongTensor</span></code> – The test data represented as indices from the constructed vocabulary.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="core.corpus.Corpus.vocabulary">
+<code class="descname">vocabulary</code><a class="headerlink" href="#core.corpus.Corpus.vocabulary" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-obj docutils literal"><span class="pre">Vocabulary</span></code> – The vocabulary constructed from the train, validation and test files.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.corpus.Corpus.create_batch">
+<code class="descname">create_batch</code><span class="sig-paren">(</span><em>data</em>, <em>offset</em>, <em>batch_size</em>, <em>sequence_length</em>, <em>use_cuda=False</em>, <em>eval_mode=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/corpus.html#Corpus.create_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.corpus.Corpus.create_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a batch of a given sized composed of a defined length instances starting from a given offset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data</strong> (<code class="xref py py-obj docutils literal"><span class="pre">torch.LongTensor</span></code>) – The batched data to split.</li>
+<li><strong>offset</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a>) – The offset to start with.</li>
+<li><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a>) – The size of the batch.</li>
+<li><strong>sequence_length</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a>) – The length of the sequence.</li>
+<li><strong>use_cuda</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">bool</span></code></a>) – Determines whether or not to move the data to the GPU.</li>
+<li><strong>eval_mode</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">bool</span></code></a>, optional) – Whether or not we are in evaluation mode.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The split data where the first value is the input of type <code class="xref py py-obj docutils literal"><span class="pre">torch.autograd.Variable</span></code>
+and the second value is the target data of type <code class="xref py py-obj docutils literal"><span class="pre">torch.autograd.Variable</span></code>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#tuple" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">tuple</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.corpus.Corpus.create_batches">
+<code class="descname">create_batches</code><span class="sig-paren">(</span><em>data</em>, <em>batch_size</em>, <em>use_cuda</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/corpus.html#Corpus.create_batches"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.corpus.Corpus.create_batches" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates batches from the provided data set.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data</strong> (<code class="xref py py-obj docutils literal"><span class="pre">torch.LongTensor</span></code>) – The batched data to split.</li>
+<li><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a>) – The size of the batch.</li>
+<li><strong>use_cuda</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">bool</span></code></a>) – Determines whether or not to move the data to the GPU.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The batched data.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-obj docutils literal"><span class="pre">torch.LongTensor</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.corpus.Corpus.create_random_batch">
+<code class="descname">create_random_batch</code><span class="sig-paren">(</span><em>data</em>, <em>batch_size</em>, <em>sequence_length</em>, <em>use_cuda=False</em>, <em>eval_mode=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/corpus.html#Corpus.create_random_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.corpus.Corpus.create_random_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a random batch of a given size composed of defined length instances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data</strong> (<code class="xref py py-obj docutils literal"><span class="pre">torch.LongTensor</span></code>) – The batched data to split.</li>
+<li><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a>) – The size of the batch.</li>
+<li><strong>sequence_length</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a>) – The length of the sequence.</li>
+<li><strong>use_cuda</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">bool</span></code></a>) – Determines whether or not to move the data to the GPU.</li>
+<li><strong>eval_mode</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">bool</span></code></a>, optional) – Whether or not we are in evaluation mode.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The split data where the first value is the input of type <code class="xref py py-obj docutils literal"><span class="pre">torch.autograd.Variable</span></code>
+and the second value is the target data of type <code class="xref py py-obj docutils literal"><span class="pre">torch.autograd.Variable</span></code>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#tuple" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">tuple</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="core.corpus.Corpus.load">
+<em class="property">static </em><code class="descname">load</code><span class="sig-paren">(</span><em>file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/corpus.html#Corpus.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.corpus.Corpus.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the corpus from a file path.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a>) – The path to the file to load the corpus from.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The loaded corpus.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#core.corpus.Corpus" title="core.corpus.Corpus"><code class="xref py py-obj docutils literal"><span class="pre">Corpus</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.corpus.Corpus.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/corpus.html#Corpus.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.corpus.Corpus.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the current instance to the provided file path.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a>) – The path to the file to store the corpus.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.corpus.Corpus.split_batched_data">
+<code class="descname">split_batched_data</code><span class="sig-paren">(</span><em>data</em>, <em>index</em>, <em>sequence_length</em>, <em>use_cuda=False</em>, <em>eval_mode=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/corpus.html#Corpus.split_batched_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.corpus.Corpus.split_batched_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Splits the batched data into input and target data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data</strong> (<code class="xref py py-obj docutils literal"><span class="pre">torch.LongTensor</span></code>) – The batched data to split.</li>
+<li><strong>index</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a>) – The offset.</li>
+<li><strong>sequence_length</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a>) – The length of the sequence.</li>
+<li><strong>use_cuda</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">bool</span></code></a>) – Determines whether or not to move the data to the GPU.</li>
+<li><strong>eval_mode</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">bool</span></code></a>, optional) – Whether or not we are in evaluation mode.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The split data where the first value is the input of type <code class="xref py py-obj docutils literal"><span class="pre">torch.autograd.Variable</span></code>
+and the second value is the target data of type <code class="xref py py-obj docutils literal"><span class="pre">torch.autograd.Variable</span></code>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#tuple" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">tuple</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-core.data_processor">
+<span id="core-data-processor-module"></span><h2>core.data_processor module<a class="headerlink" href="#module-core.data_processor" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="core.data_processor.DataProcessor">
+<em class="property">class </em><code class="descclassname">core.data_processor.</code><code class="descname">DataProcessor</code><span class="sig-paren">(</span><em>end_of_sequence_token=None</em>, <em>numeric_token=None</em>, <em>unknown_token=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/data_processor.html#DataProcessor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.data_processor.DataProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Defines the base set of functionality to process a data set into words or characters.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="core.data_processor.PennTreeBankProcessor">
+<em class="property">class </em><code class="descclassname">core.data_processor.</code><code class="descname">PennTreeBankProcessor</code><span class="sig-paren">(</span><em>train_batch_size=None</em>, <em>eval_batch_size=None</em>, <em>use_cuda=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/data_processor.html#PennTreeBankProcessor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.data_processor.PennTreeBankProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#core.data_processor.DataProcessor" title="core.data_processor.DataProcessor"><code class="xref py py-class docutils literal"><span class="pre">core.data_processor.DataProcessor</span></code></a></p>
+<p>Defines the Penn Tree Bank data processor.</p>
+<dl class="method">
+<dt id="core.data_processor.PennTreeBankProcessor.character_items_from_string">
+<code class="descname">character_items_from_string</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/data_processor.html#PennTreeBankProcessor.character_items_from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.data_processor.PennTreeBankProcessor.character_items_from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses a string as character items.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>string</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a>) – The string to process.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The list of character items.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-obj docutils literal"><span class="pre">list</span></code> of <a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.data_processor.PennTreeBankProcessor.process_corpus_as_characters">
+<code class="descname">process_corpus_as_characters</code><span class="sig-paren">(</span><em>corpus</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/data_processor.html#PennTreeBankProcessor.process_corpus_as_characters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.data_processor.PennTreeBankProcessor.process_corpus_as_characters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Processes a corpus and its data as character items.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>corpus</strong> (<code class="xref py py-obj docutils literal"><span class="pre">Corpus</span></code>) – The corpus to process.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The updated corpus with processed data.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-obj docutils literal"><span class="pre">Corpus</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.data_processor.PennTreeBankProcessor.process_corpus_as_words">
+<code class="descname">process_corpus_as_words</code><span class="sig-paren">(</span><em>corpus</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/data_processor.html#PennTreeBankProcessor.process_corpus_as_words"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.data_processor.PennTreeBankProcessor.process_corpus_as_words" title="Permalink to this definition">¶</a></dt>
+<dd><p>Processes a corpus and its data as word items.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>corpus</strong> (<code class="xref py py-obj docutils literal"><span class="pre">Corpus</span></code>) – The corpus to process.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The updated corpus with processed data.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-obj docutils literal"><span class="pre">Corpus</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.data_processor.PennTreeBankProcessor.word_items_from_string">
+<code class="descname">word_items_from_string</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/data_processor.html#PennTreeBankProcessor.word_items_from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.data_processor.PennTreeBankProcessor.word_items_from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses a string as word items.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>string</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a>) – The string to process.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The list of word items.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-obj docutils literal"><span class="pre">list</span></code> of <a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-core.prediction">
+<span id="core-prediction-module"></span><h2>core.prediction module<a class="headerlink" href="#module-core.prediction" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="core.prediction.CharacterRNNPredictor">
+<em class="property">class </em><code class="descclassname">core.prediction.</code><code class="descname">CharacterRNNPredictor</code><span class="sig-paren">(</span><em>rnn</em>, <em>vocabulary</em>, <em>use_cuda=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/prediction.html#CharacterRNNPredictor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.prediction.CharacterRNNPredictor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#core.prediction.RNNPredictor" title="core.prediction.RNNPredictor"><code class="xref py py-class docutils literal"><span class="pre">core.prediction.RNNPredictor</span></code></a></p>
+<p>Defines the <cite>CharacterRNNPredictor</cite> class used to predict characters or words when using a <cite>CharacterRNN</cite> model.</p>
+<dl class="method">
+<dt id="core.prediction.CharacterRNNPredictor.predict_chars">
+<code class="descname">predict_chars</code><span class="sig-paren">(</span><em>context</em>, <em>temperature</em>, <em>count</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/prediction.html#CharacterRNNPredictor.predict_chars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.prediction.CharacterRNNPredictor.predict_chars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predicts characters given a context and a temperature.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>context</strong> (<code class="xref py py-obj docutils literal"><span class="pre">list</span></code> of <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a>) – The context to initialize the model with before predicting.</li>
+<li><strong>temperature</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">float</span></code></a>) – The prediction temperature.</li>
+<li><strong>count</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a>) – The number of items to predict.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The list of predicted items.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-obj docutils literal"><span class="pre">list</span></code> of <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.prediction.CharacterRNNPredictor.predict_sentence">
+<code class="descname">predict_sentence</code><span class="sig-paren">(</span><em>context</em>, <em>temperature</em>, <em>max_word_count</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/prediction.html#CharacterRNNPredictor.predict_sentence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.prediction.CharacterRNNPredictor.predict_sentence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predicts a sentence given a context and a temperature.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>context</strong> (<code class="xref py py-obj docutils literal"><span class="pre">list</span></code> of <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a>) – The context to initialize the model with before predicting.</li>
+<li><strong>temperature</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">float</span></code></a>) – The prediction temperature.</li>
+<li><strong>max_word_count</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a>) – The maximum number of words to predict.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The list of predicted items.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-obj docutils literal"><span class="pre">list</span></code> of <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.prediction.CharacterRNNPredictor.predict_sentences">
+<code class="descname">predict_sentences</code><span class="sig-paren">(</span><em>context</em>, <em>temperatures</em>, <em>max_word_count</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/prediction.html#CharacterRNNPredictor.predict_sentences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.prediction.CharacterRNNPredictor.predict_sentences" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predicts a sentence given a context and multiple temperatures.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>context</strong> (<code class="xref py py-obj docutils literal"><span class="pre">list</span></code> of <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a>) – The context to initialize the model with before predicting.</li>
+<li><strong>temperatures</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">float</span></code></a>) – The prediction temperatures.</li>
+<li><strong>max_word_count</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a>) – The maximum number of words to predict.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The list of predicted sentences.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-obj docutils literal"><span class="pre">list</span></code> of <code class="xref py py-obj docutils literal"><span class="pre">list</span></code> of <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.prediction.CharacterRNNPredictor.predict_words">
+<code class="descname">predict_words</code><span class="sig-paren">(</span><em>context</em>, <em>temperature</em>, <em>count</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/prediction.html#CharacterRNNPredictor.predict_words"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.prediction.CharacterRNNPredictor.predict_words" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predicts a words given a context and a temperature.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>context</strong> (<code class="xref py py-obj docutils literal"><span class="pre">list</span></code> of <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a>) – The context to initialize the model with before predicting.</li>
+<li><strong>temperature</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">float</span></code></a>) – The prediction temperature.</li>
+<li><strong>count</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a>) – The number of words to predict.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The list of predicted items.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-obj docutils literal"><span class="pre">list</span></code> of <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.prediction.CharacterRNNPredictor.tensor_from_item">
+<code class="descname">tensor_from_item</code><span class="sig-paren">(</span><em>vocabulary</em>, <em>item</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/prediction.html#CharacterRNNPredictor.tensor_from_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.prediction.CharacterRNNPredictor.tensor_from_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts an item into a tensor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>vocabulary</strong> (<code class="xref py py-obj docutils literal"><span class="pre">Vocabulary</span></code>) – The vocabulary of items.</li>
+<li><strong>item</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a>) – The item to convert into a tensor.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The tensor representing the item.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-obj docutils literal"><span class="pre">torch.LongTensor</span></code> of size 1x1</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="core.prediction.RNNPredictor">
+<em class="property">class </em><code class="descclassname">core.prediction.</code><code class="descname">RNNPredictor</code><span class="sig-paren">(</span><em>rnn</em>, <em>vocabulary</em>, <em>tensor_from_item</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/prediction.html#RNNPredictor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.prediction.RNNPredictor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Defines the <cite>RNNPredictor</cite> class used to predict sequences given an RNN model.</p>
+<dl class="method">
+<dt id="core.prediction.RNNPredictor.create_state">
+<code class="descname">create_state</code><span class="sig-paren">(</span><em>context</em>, <em>batch_size=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/prediction.html#RNNPredictor.create_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.prediction.RNNPredictor.create_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes and creates the state of the model given a context.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>context</strong> (<code class="xref py py-obj docutils literal"><span class="pre">list</span></code> of <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a>) – The context to initialize the model with before predicting.</li>
+<li><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a>, optional) – The batch size of the models hidden statel By default its one.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The updated state of the model.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#tuple" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">tuple</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.prediction.RNNPredictor.next_state">
+<code class="descname">next_state</code><span class="sig-paren">(</span><em>state</em>, <em>input</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/prediction.html#RNNPredictor.next_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.prediction.RNNPredictor.next_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the state of the model given an input.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>state</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#tuple" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">tuple</span></code></a>) – The state of the model.</li>
+<li><strong>input</strong> – The input to update the model with.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The updated state of the model.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#tuple" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">tuple</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.prediction.RNNPredictor.next_state_given_item">
+<code class="descname">next_state_given_item</code><span class="sig-paren">(</span><em>state</em>, <em>item</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/prediction.html#RNNPredictor.next_state_given_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.prediction.RNNPredictor.next_state_given_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the state of the model given an item.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>state</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#tuple" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">tuple</span></code></a>) – The state of the model.</li>
+<li><strong>item</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a>) – The item to update the model with.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The updated state of the model.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#tuple" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">tuple</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.prediction.RNNPredictor.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>context</em>, <em>temperature</em>, <em>count</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/prediction.html#RNNPredictor.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.prediction.RNNPredictor.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predicts a number of items given a context and a temperature.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>context</strong> (<code class="xref py py-obj docutils literal"><span class="pre">list</span></code> of <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a>) – The context to initialize the model with before predicting.</li>
+<li><strong>temperature</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">float</span></code></a>) – The prediction temperature.</li>
+<li><strong>count</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a>) – The number of items to predict.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The list of predicted items.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-obj docutils literal"><span class="pre">list</span></code> of <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.prediction.RNNPredictor.predict_iterator">
+<code class="descname">predict_iterator</code><span class="sig-paren">(</span><em>context</em>, <em>temperature</em>, <em>count</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/prediction.html#RNNPredictor.predict_iterator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.prediction.RNNPredictor.predict_iterator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a number of items given a context and a temperature.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>context</strong> (<code class="xref py py-obj docutils literal"><span class="pre">list</span></code> of <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a>) – The context to initialize the model with before predicting.</li>
+<li><strong>temperature</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">float</span></code></a>) – The prediction temperature.</li>
+<li><strong>count</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a>) – The number of items to predict.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a> – The next predicted item.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.prediction.RNNPredictor.predict_many_next">
+<code class="descname">predict_many_next</code><span class="sig-paren">(</span><em>state</em>, <em>temperatures</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/prediction.html#RNNPredictor.predict_many_next"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.prediction.RNNPredictor.predict_many_next" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predicts the next items given a the models state and multiple temperatures.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>state</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#tuple" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">tuple</span></code></a>) – The state of the model.</li>
+<li><strong>temperature</strong> (<code class="xref py py-obj docutils literal"><span class="pre">list</span></code> of <a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">float</span></code></a>) – The prediction temperatures.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The predicted items.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-obj docutils literal"><span class="pre">list</span></code> of <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.prediction.RNNPredictor.predict_many_next_indices">
+<code class="descname">predict_many_next_indices</code><span class="sig-paren">(</span><em>state</em>, <em>temperatures</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/prediction.html#RNNPredictor.predict_many_next_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.prediction.RNNPredictor.predict_many_next_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predicts many next item indicesgiven a the models state and multiple temperatures.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>state</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#tuple" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">tuple</span></code></a>) – The state of the model.</li>
+<li><strong>temperatures</strong> (<code class="xref py py-obj docutils literal"><span class="pre">list</span></code> of <a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">float</span></code></a>) – The prediction temperatures.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The predicted indices.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-obj docutils literal"><span class="pre">list</span></code> of <a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.prediction.RNNPredictor.predict_next">
+<code class="descname">predict_next</code><span class="sig-paren">(</span><em>state</em>, <em>temperature</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/prediction.html#RNNPredictor.predict_next"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.prediction.RNNPredictor.predict_next" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predicts the next item given a the models state and a temperature.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>state</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#tuple" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">tuple</span></code></a>) – The state of the model.</li>
+<li><strong>temperature</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">float</span></code></a>) – The prediction temperature.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The predicted item.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.prediction.RNNPredictor.predict_next_index">
+<code class="descname">predict_next_index</code><span class="sig-paren">(</span><em>state</em>, <em>temperature</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/prediction.html#RNNPredictor.predict_next_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.prediction.RNNPredictor.predict_next_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predicts the next index of an item given a the models state and a temperature.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>state</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#tuple" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">tuple</span></code></a>) – The state of the model.</li>
+<li><strong>temperature</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">float</span></code></a>) – The prediction temperature.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The predicted index.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.prediction.RNNPredictor.predict_while">
+<code class="descname">predict_while</code><span class="sig-paren">(</span><em>context</em>, <em>temperature</em>, <em>condition</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/prediction.html#RNNPredictor.predict_while"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.prediction.RNNPredictor.predict_while" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predicts items given a context and a temperature while the provided condition resolves to True.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>context</strong> (<code class="xref py py-obj docutils literal"><span class="pre">list</span></code> of <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a>) – The context to initialize the model with before predicting.</li>
+<li><strong>temperature</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">float</span></code></a>) – The prediction temperature.</li>
+<li><strong>condition</strong> (<code class="xref py py-obj docutils literal"><span class="pre">function</span></code>) – The condition function.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The condition gets called on every iteration prior to generating the
+value and two parameters are provided in the following order:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>count <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a></span></dt>
+<dd>The count of the accumulated predicted values.</dd>
+<dt>next_item <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a></span></dt>
+<dd>The next predicted item.</dd>
+</dl>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The list of predicted items.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-obj docutils literal"><span class="pre">list</span></code> of <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.prediction.RNNPredictor.predict_while_iterator">
+<code class="descname">predict_while_iterator</code><span class="sig-paren">(</span><em>context</em>, <em>temperature</em>, <em>condition</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/prediction.html#RNNPredictor.predict_while_iterator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.prediction.RNNPredictor.predict_while_iterator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a items given a context and a temperature while the provided condition resolves to True.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>context</strong> (<code class="xref py py-obj docutils literal"><span class="pre">list</span></code> of <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a>) – The context to initialize the model with before predicting.</li>
+<li><strong>temperature</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">float</span></code></a>) – The prediction temperature.</li>
+<li><strong>condition</strong> (<code class="xref py py-obj docutils literal"><span class="pre">function</span></code>) – The condition function.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The condition gets called on every iteration prior to generating the
+value and two parameters are provided in the following order:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>count <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a></span></dt>
+<dd>The count of the accumulated predicted values.</dd>
+<dt>next_item <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a></span></dt>
+<dd>The next predicted item.</dd>
+</dl>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Yields:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a> – The next predicted item.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">not_end_of_word</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="n">item</span> <span class="o">!=</span> <span class="s2">&quot; &quot;</span> <span class="ow">and</span> <span class="n">item</span> <span class="o">!=</span> <span class="s2">&quot;&lt;eos&gt;&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">([</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">predictor</span><span class="o">.</span><span class="n">predict_while_iterator</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">not_end_of_word</span><span class="p">)])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-core.rnn">
+<span id="core-rnn-module"></span><h2>core.rnn module<a class="headerlink" href="#module-core.rnn" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="core.rnn.CharacterRNN">
+<em class="property">class </em><code class="descclassname">core.rnn.</code><code class="descname">CharacterRNN</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/rnn.html#CharacterRNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.rnn.CharacterRNN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#core.rnn.RNN" title="core.rnn.RNN"><code class="xref py py-class docutils literal"><span class="pre">core.rnn.RNN</span></code></a></p>
+<p>Defines a character recurrent neural network.</p>
+<dl class="attribute">
+<dt id="core.rnn.CharacterRNN.config">
+<code class="descname">config</code><a class="headerlink" href="#core.rnn.CharacterRNN.config" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#core.rnn.RNNConfig" title="core.rnn.RNNConfig"><code class="xref py py-obj docutils literal"><span class="pre">RNNConfig</span></code></a> – The recurrent neural network configuration.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="core.rnn.CharacterRNN.dropout">
+<code class="descname">dropout</code><a class="headerlink" href="#core.rnn.CharacterRNN.dropout" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-obj docutils literal"><span class="pre">torch.nn.Dropout</span></code> – The dropout to use while training.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="core.rnn.CharacterRNN.encoder">
+<code class="descname">encoder</code><a class="headerlink" href="#core.rnn.CharacterRNN.encoder" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-obj docutils literal"><span class="pre">torch.nn.Embedding</span></code> – The item encoder.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="core.rnn.CharacterRNN.rnn">
+<code class="descname">rnn</code><a class="headerlink" href="#core.rnn.CharacterRNN.rnn" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-obj docutils literal"><span class="pre">torch.nn.Module</span></code> – The recurrent nerual network.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="core.rnn.CharacterRNN.decoder">
+<code class="descname">decoder</code><a class="headerlink" href="#core.rnn.CharacterRNN.decoder" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-obj docutils literal"><span class="pre">torch.nn.Linear</span></code> – The item decoder.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.rnn.CharacterRNN.forward">
+<code class="descname">forward</code><span class="sig-paren">(</span><em>input</em>, <em>hidden</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/rnn.html#CharacterRNN.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.rnn.CharacterRNN.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>input</strong> (<em>:obj:``</em>) – The input.</li>
+<li><strong>hidden</strong> (<code class="xref py py-obj docutils literal"><span class="pre">torch.autograd.Variable</span></code>) – The hidden state.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The first value is the output and the second is the hidden state.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#tuple" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">tuple</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="core.rnn.PersonalizedCharacterRNN">
+<em class="property">class </em><code class="descclassname">core.rnn.</code><code class="descname">PersonalizedCharacterRNN</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/rnn.html#PersonalizedCharacterRNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.rnn.PersonalizedCharacterRNN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#core.rnn.CharacterRNN" title="core.rnn.CharacterRNN"><code class="xref py py-class docutils literal"><span class="pre">core.rnn.CharacterRNN</span></code></a></p>
+<p>Defines a personalized character recurrent neural network.</p>
+<dl class="attribute">
+<dt id="core.rnn.PersonalizedCharacterRNN.config">
+<code class="descname">config</code><a class="headerlink" href="#core.rnn.PersonalizedCharacterRNN.config" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#core.rnn.RNNConfig" title="core.rnn.RNNConfig"><code class="xref py py-obj docutils literal"><span class="pre">RNNConfig</span></code></a> – The recurrent neural network configuration.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="core.rnn.PersonalizedCharacterRNN.dropout">
+<code class="descname">dropout</code><a class="headerlink" href="#core.rnn.PersonalizedCharacterRNN.dropout" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-obj docutils literal"><span class="pre">torch.nn.Dropout</span></code> – The dropout to use while training.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="core.rnn.PersonalizedCharacterRNN.encoder">
+<code class="descname">encoder</code><a class="headerlink" href="#core.rnn.PersonalizedCharacterRNN.encoder" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-obj docutils literal"><span class="pre">torch.nn.Embedding</span></code> – The item encoder.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="core.rnn.PersonalizedCharacterRNN.rnn">
+<code class="descname">rnn</code><a class="headerlink" href="#core.rnn.PersonalizedCharacterRNN.rnn" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-obj docutils literal"><span class="pre">torch.nn.Module</span></code> – The recurrent nerual network.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="core.rnn.PersonalizedCharacterRNN.decoder">
+<code class="descname">decoder</code><a class="headerlink" href="#core.rnn.PersonalizedCharacterRNN.decoder" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-obj docutils literal"><span class="pre">torch.nn.Linear</span></code> – The item decoder.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="core.rnn.PersonalizedCharacterRNN.transfer_from_rnn_with_extra_layers">
+<em class="property">classmethod </em><code class="descname">transfer_from_rnn_with_extra_layers</code><span class="sig-paren">(</span><em>rnn</em>, <em>layer_count</em>, <em>use_cuda=False</em>, <em>fail_on_no_update=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/rnn.html#PersonalizedCharacterRNN.transfer_from_rnn_with_extra_layers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.rnn.PersonalizedCharacterRNN.transfer_from_rnn_with_extra_layers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a personalized RNN by transfering weights from an existing RNN and adding extra layers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>rnn</strong> (<a class="reference internal" href="#core.rnn.RNN" title="core.rnn.RNN"><code class="xref py py-obj docutils literal"><span class="pre">RNN</span></code></a>) – The RNN to transfer the weights from.</li>
+<li><strong>layer_count</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a>) – The number of extra layers to add.</li>
+<li><strong>use_cuda</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">bool</span></code></a>, optional) – Determines whether or not to use CUDA. By default, False.</li>
+<li><strong>fail_on_no_update</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">bool</span></code></a>, optional) – Determines whether or not to fail if no update. By default, True.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The personalized recurrent neural network.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#core.rnn.PersonalizedCharacterRNN" title="core.rnn.PersonalizedCharacterRNN"><code class="xref py py-obj docutils literal"><span class="pre">PersonalizedCharacterRNN</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="core.rnn.RNN">
+<em class="property">class </em><code class="descclassname">core.rnn.</code><code class="descname">RNN</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/rnn.html#RNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.rnn.RNN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Defines a recurrent neural network.</p>
+<dl class="attribute">
+<dt id="core.rnn.RNN.config">
+<code class="descname">config</code><a class="headerlink" href="#core.rnn.RNN.config" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#core.rnn.RNNConfig" title="core.rnn.RNNConfig"><code class="xref py py-obj docutils literal"><span class="pre">RNNConfig</span></code></a> – The recurrent neural network configuration.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="core.rnn.RNN.dropout">
+<code class="descname">dropout</code><a class="headerlink" href="#core.rnn.RNN.dropout" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-obj docutils literal"><span class="pre">torch.nn.Dropout</span></code> – The dropout to use while training.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="core.rnn.RNN.encoder">
+<code class="descname">encoder</code><a class="headerlink" href="#core.rnn.RNN.encoder" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-obj docutils literal"><span class="pre">torch.nn.Embedding</span></code> – The item encoder.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="core.rnn.RNN.rnn">
+<code class="descname">rnn</code><a class="headerlink" href="#core.rnn.RNN.rnn" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-obj docutils literal"><span class="pre">torch.nn.Module</span></code> – The recurrent nerual network.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="core.rnn.RNN.decoder">
+<code class="descname">decoder</code><a class="headerlink" href="#core.rnn.RNN.decoder" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-obj docutils literal"><span class="pre">torch.nn.Linear</span></code> – The item decoder.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.rnn.RNN.create_hidden">
+<code class="descname">create_hidden</code><span class="sig-paren">(</span><em>batch_size=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/rnn.html#RNN.create_hidden"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.rnn.RNN.create_hidden" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the recurrent neural network hidden state.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a>, optional) – The input batch size.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The hidden state.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-obj docutils literal"><span class="pre">torch.autograd.Variable</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.rnn.RNN.forward">
+<code class="descname">forward</code><span class="sig-paren">(</span><em>input</em>, <em>hidden</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/rnn.html#RNN.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.rnn.RNN.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>input</strong> (<em>:obj:``</em>) – The input.</li>
+<li><strong>hidden</strong> (<code class="xref py py-obj docutils literal"><span class="pre">torch.autograd.Variable</span></code>) – The hidden state.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The first value is the output and the second is the hidden state.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#tuple" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">tuple</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="core.rnn.RNNConfig">
+<em class="property">class </em><code class="descclassname">core.rnn.</code><code class="descname">RNNConfig</code><span class="sig-paren">(</span><em>term_count</em>, <em>embedding_size</em>, <em>hidden_size</em>, <em>layer_count=2</em>, <em>type='GRU'</em>, <em>init_weight_randomly=False</em>, <em>dropout=0.0</em>, <em>tie_weights=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/rnn.html#RNNConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.rnn.RNNConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Defines a recurrent neural network configuration.</p>
+<dl class="attribute">
+<dt id="core.rnn.RNNConfig.term_count">
+<code class="descname">term_count</code><a class="headerlink" href="#core.rnn.RNNConfig.term_count" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a> – The amount of terms or items in the vocabulary.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="core.rnn.RNNConfig.embedding_size">
+<code class="descname">embedding_size</code><a class="headerlink" href="#core.rnn.RNNConfig.embedding_size" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a> – The size of the embedding.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="core.rnn.RNNConfig.hidden_size">
+<code class="descname">hidden_size</code><a class="headerlink" href="#core.rnn.RNNConfig.hidden_size" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a> – The amount of hidden units per layer.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="core.rnn.RNNConfig.layer_count">
+<code class="descname">layer_count</code><a class="headerlink" href="#core.rnn.RNNConfig.layer_count" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a>, optional – The amount of layers. By default, we create two layers.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="core.rnn.RNNConfig.type">
+<code class="descname">type</code><a class="headerlink" href="#core.rnn.RNNConfig.type" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a>, optional – The type of recurrent neural network to create: ‘LSTM’ or ‘GRU’.
+By default, we use GRU.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="core.rnn.RNNConfig.init_weight_randomly">
+<code class="descname">init_weight_randomly</code><a class="headerlink" href="#core.rnn.RNNConfig.init_weight_randomly" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">bool</span></code></a>, optional – Determines whether or not the weights should be initialized randomly.
+By default, we do not initialize the weights randomly.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="core.rnn.RNNConfig.dropout">
+<code class="descname">dropout</code><a class="headerlink" href="#core.rnn.RNNConfig.dropout" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">float</span></code></a>, optional – The dropout parameter to use. By default, the value is zero (no dropout).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="core.rnn.RNNConfig.tie_weights">
+<code class="descname">tie_weights</code><a class="headerlink" href="#core.rnn.RNNConfig.tie_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">bool</span></code></a>, optional – Determines whether or not the weights should be tied.
+By default, weights are not tied.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.rnn.RNNConfig.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/rnn.html#RNNConfig.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.rnn.RNNConfig.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a copy of the instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The copy of the configuration.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#core.rnn.RNNConfig" title="core.rnn.RNNConfig"><code class="xref py py-obj docutils literal"><span class="pre">RNNConfig</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="core.rnn.RNNConfig.from_serialized">
+<em class="property">classmethod </em><code class="descname">from_serialized</code><span class="sig-paren">(</span><em>serialized</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/rnn.html#RNNConfig.from_serialized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.rnn.RNNConfig.from_serialized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an instance of the <cite>RNNConfig</cite> class from a dictionary.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>serialized</strong> (<a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a>) – The dictionary containing the corresponding configuration.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The configuration instance.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#core.rnn.RNNConfig" title="core.rnn.RNNConfig"><code class="xref py py-obj docutils literal"><span class="pre">RNNConfig</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.rnn.RNNConfig.serialize">
+<code class="descname">serialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/rnn.html#RNNConfig.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.rnn.RNNConfig.serialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serializes the instance as a dictionary.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The configuration as a dictionary.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-core.vocabulary">
+<span id="core-vocabulary-module"></span><h2>core.vocabulary module<a class="headerlink" href="#module-core.vocabulary" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="core.vocabulary.Vocabulary">
+<em class="property">class </em><code class="descclassname">core.vocabulary.</code><code class="descname">Vocabulary</code><span class="sig-paren">(</span><em>items=[]</em>, <em>item_index_map={}</em>, <em>eos_item=None</em>, <em>numeric_item=None</em>, <em>unknown_item=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/vocabulary.html#Vocabulary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.vocabulary.Vocabulary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Defines a vocabulary of items of any type.</p>
+<p>Allows the representation and conversion of items for a language model.</p>
+<dl class="method">
+<dt id="core.vocabulary.Vocabulary.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>item</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/vocabulary.html#Vocabulary.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.vocabulary.Vocabulary.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an item to the vocuabulary.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>item</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a>) – The item to add to the vocabulary.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if exists, False otherwise.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.vocabulary.Vocabulary.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/vocabulary.html#Vocabulary.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.vocabulary.Vocabulary.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes copy of this instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The copy of this instance.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#core.vocabulary.Vocabulary" title="core.vocabulary.Vocabulary"><code class="xref py py-obj docutils literal"><span class="pre">Vocabulary</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.vocabulary.Vocabulary.count">
+<code class="descname">count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/vocabulary.html#Vocabulary.count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.vocabulary.Vocabulary.count" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of items in the vocabulary.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The item count.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)">int</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="core.vocabulary.Vocabulary.create_item_index_map">
+<em class="property">static </em><code class="descname">create_item_index_map</code><span class="sig-paren">(</span><em>items</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/vocabulary.html#Vocabulary.create_item_index_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.vocabulary.Vocabulary.create_item_index_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an index map from a set of items.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>items</strong> (<code class="xref py py-obj docutils literal"><span class="pre">list</span></code>) – The list of items to create and index map from.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An item index map where the keys are items and the values
+are the corresponding index.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.vocabulary.Vocabulary.eos_item">
+<code class="descname">eos_item</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/vocabulary.html#Vocabulary.eos_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.vocabulary.Vocabulary.eos_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the end of sequence item.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The end of sequence item.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="core.vocabulary.Vocabulary.from_list">
+<em class="property">classmethod </em><code class="descname">from_list</code><span class="sig-paren">(</span><em>items</em>, <em>eos=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/vocabulary.html#Vocabulary.from_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.vocabulary.Vocabulary.from_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a Vocabulary instance from a set of items.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>items</strong> (<code class="xref py py-obj docutils literal"><span class="pre">list</span></code>) – The list of items to create the vocabulary with.</li>
+<li><strong>eos</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a>, optional) – If provided, the item used to indicate the end of sequence.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The vocabulary instance.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#core.vocabulary.Vocabulary" title="core.vocabulary.Vocabulary">Vocabulary</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="core.vocabulary.Vocabulary.from_string">
+<em class="property">classmethod </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>str</em>, <em>eos=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/vocabulary.html#Vocabulary.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.vocabulary.Vocabulary.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a Vocabulary instance from a string, where each character is an item.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>str</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – The string used to create the vocabulary with.</li>
+<li><strong>eos</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a>, optional) – If provided, the item used to indicate the end of sequence.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The vocabulary instance.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#core.vocabulary.Vocabulary" title="core.vocabulary.Vocabulary">Vocabulary</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.vocabulary.Vocabulary.index_from_item">
+<code class="descname">index_from_item</code><span class="sig-paren">(</span><em>item</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/vocabulary.html#Vocabulary.index_from_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.vocabulary.Vocabulary.index_from_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the index given an item.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>item</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a>) – The item to determine its index.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The index of the item if exists, None otherwise.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)">int</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.vocabulary.Vocabulary.indices_from_items">
+<code class="descname">indices_from_items</code><span class="sig-paren">(</span><em>items</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/vocabulary.html#Vocabulary.indices_from_items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.vocabulary.Vocabulary.indices_from_items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the indices given a set of items.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>items</strong> (<code class="xref py py-obj docutils literal"><span class="pre">list</span></code>) – The list of items to determine its indices.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The indices of the items that exist. If no item is found None is presented.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-obj docutils literal"><span class="pre">list</span></code> of <a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.vocabulary.Vocabulary.is_eos_item">
+<code class="descname">is_eos_item</code><span class="sig-paren">(</span><em>item</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/vocabulary.html#Vocabulary.is_eos_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.vocabulary.Vocabulary.is_eos_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines whether or not the item is an end of sequence item.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>item</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a>) – The item to validate.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the item is end of sequence item, False otherwise.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.vocabulary.Vocabulary.is_numeric_item">
+<code class="descname">is_numeric_item</code><span class="sig-paren">(</span><em>item</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/vocabulary.html#Vocabulary.is_numeric_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.vocabulary.Vocabulary.is_numeric_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines whether or not the item is a numeric item.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>item</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a>) – The item to validate.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the item is a numeric item, False otherwise.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.vocabulary.Vocabulary.is_unknown_item">
+<code class="descname">is_unknown_item</code><span class="sig-paren">(</span><em>item</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/vocabulary.html#Vocabulary.is_unknown_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.vocabulary.Vocabulary.is_unknown_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines whether or not the item is an unknown item.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>item</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a>) – The item to validate.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the item is an unknown item, False otherwise.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.vocabulary.Vocabulary.item_exists">
+<code class="descname">item_exists</code><span class="sig-paren">(</span><em>item</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/vocabulary.html#Vocabulary.item_exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.vocabulary.Vocabulary.item_exists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines whether or not an item exists in the vocuabulary.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>item</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a>) – The item to validate.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if exists, False otherwise.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.vocabulary.Vocabulary.item_from_index">
+<code class="descname">item_from_index</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/vocabulary.html#Vocabulary.item_from_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.vocabulary.Vocabulary.item_from_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the item given its index.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) – The index of the item.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The item if exists.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.vocabulary.Vocabulary.items">
+<code class="descname">items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/vocabulary.html#Vocabulary.items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.vocabulary.Vocabulary.items" title="Permalink to this definition">¶</a></dt>
+<dd><p>The items corresponding to the vocabulary.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A copy of the items corresponding to the vocabulary.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-obj docutils literal"><span class="pre">list</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.vocabulary.Vocabulary.items_from_indices">
+<code class="descname">items_from_indices</code><span class="sig-paren">(</span><em>indices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/vocabulary.html#Vocabulary.items_from_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.vocabulary.Vocabulary.items_from_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the items given a set of indices.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>indices</strong> (<code class="xref py py-obj docutils literal"><span class="pre">list</span></code> of <a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">int</span></code></a>) – The list of indices to determine its items.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The items for the provided indices.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-obj docutils literal"><span class="pre">list</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="core.vocabulary.Vocabulary.load">
+<em class="property">static </em><code class="descname">load</code><span class="sig-paren">(</span><em>file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/vocabulary.html#Vocabulary.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.vocabulary.Vocabulary.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the vocabulary from a file path.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a>) – The path to the file to load the vocabulary from.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.vocabulary.Vocabulary.long_tensor_from_items">
+<code class="descname">long_tensor_from_items</code><span class="sig-paren">(</span><em>items</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/vocabulary.html#Vocabulary.long_tensor_from_items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.vocabulary.Vocabulary.long_tensor_from_items" title="Permalink to this definition">¶</a></dt>
+<dd><p>A collection of items represented as a long tensor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The items represented as a long tensor.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-obj docutils literal"><span class="pre">torch.autograd.variable.Variable</span></code> of <code class="xref py py-obj docutils literal"><span class="pre">torch.LongTensor</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.vocabulary.Vocabulary.numeric_item">
+<code class="descname">numeric_item</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/vocabulary.html#Vocabulary.numeric_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.vocabulary.Vocabulary.numeric_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the numeric item.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The numeric item.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.vocabulary.Vocabulary.one_hot_matrix_tensor_from_items">
+<code class="descname">one_hot_matrix_tensor_from_items</code><span class="sig-paren">(</span><em>items</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/vocabulary.html#Vocabulary.one_hot_matrix_tensor_from_items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.vocabulary.Vocabulary.one_hot_matrix_tensor_from_items" title="Permalink to this definition">¶</a></dt>
+<dd><p>A collection of items represented as a one hot matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The items represented as a one hot matrix.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-obj docutils literal"><span class="pre">torch.autograd.variable.Variable</span></code> of <code class="xref py py-obj docutils literal"><span class="pre">torch.FloatTensor</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.vocabulary.Vocabulary.one_hot_tensor_from_item">
+<code class="descname">one_hot_tensor_from_item</code><span class="sig-paren">(</span><em>item</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/vocabulary.html#Vocabulary.one_hot_tensor_from_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.vocabulary.Vocabulary.one_hot_tensor_from_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>A collection of items represented as a one hot tensor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The items represented as a one hot tensor.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-obj docutils literal"><span class="pre">torch.autograd.variable.Variable</span></code> of <code class="xref py py-obj docutils literal"><span class="pre">torch.FloatTensor</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.vocabulary.Vocabulary.remove_all">
+<code class="descname">remove_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/vocabulary.html#Vocabulary.remove_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.vocabulary.Vocabulary.remove_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes all the items and indices.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This does not remove the eos_item, numeric_item or unknown_item.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.vocabulary.Vocabulary.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/vocabulary.html#Vocabulary.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.vocabulary.Vocabulary.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the current instance to the provided file path.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">str</span></code></a>) – The path to the file to store the vocabulary.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.vocabulary.Vocabulary.unknown_item">
+<code class="descname">unknown_item</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/core/vocabulary.html#Vocabulary.unknown_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.vocabulary.Vocabulary.unknown_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the unknown item.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The unknown item.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">object</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-core">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-core" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Elmar Langholz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/core.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

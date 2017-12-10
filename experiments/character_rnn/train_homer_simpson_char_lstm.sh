@@ -1,0 +1,6 @@
+#!/bin/bash
+rm -rf embedding_size_1000/homer_simpson_char_lstm_e10k_l3_es1k.pt
+python3 train_personalized_identity_char_model.py --epochs 10000 --use_cuda True --base_model_file_path "embedding_size_1000/generic_identity_char_lstm_l2.pt" --model_file_path "embedding_size_1000/homer_simpson_char_lstm_e10k_l3_es1k.pt" --corpus_file_path "homer_simpson_char_corpus.pkl" --train_data_file_path "../../data/homer simpson/train.txt" --validation_data_file_path "../../data/homer simpson/valid.txt" --test_data_file_path "../../data/homer simpson/test.txt" > embedding_size_1000/homer_simpson_char_lstm_e10k_l3_es1k.txt
+
+rm -rf embedding_size_1000/homer_simpson_char_lstm_e10k_l4_es1k.pt
+python3 train_personalized_identity_char_model.py --epochs 10000 --layer_count 2 --use_cuda True --base_model_file_path "embedding_size_1000/generic_identity_char_lstm_l3.pt" --model_file_path "embedding_size_1000/homer_simpson_char_lstm_e10k_l4_es1k.pt" --corpus_file_path "homer_simpson_char_corpus.pkl" --train_data_file_path "../../data/homer simpson/train.txt" --validation_data_file_path "../../data/homer simpson/valid.txt" --test_data_file_path "../../data/homer simpson/test.txt" > embedding_size_1000/homer_simpson_char_lstm_e10k_l4_es1k.txt

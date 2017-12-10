@@ -1,0 +1,100 @@
+<html>
+    <title>Identity-based word prediction: Prediction</title>
+    <head>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,900,700,600,200">
+        <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.2/css/font-awesome.min.css">
+        <link rel= "stylesheet" type= "text/css" href="{{ url_for('static', filename = 'styles/prediction.css') }}">
+        <link rel= "stylesheet" type="text/css" href="{{ url_for('static', filename = 'styles/overlayMenu.css') }}">
+        <script type="text/javascript">
+            var sentences = {{ sentences|tojson|safe }}
+            function createFindSentenceFunctor(index) {
+              return function (sentence) {
+                return sentence["index"] == index
+              }
+            }
+        </script>
+    </head>
+    <body>
+        <div id="overlayMenu" class="overlay">
+          <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+          <div class="overlay-content">
+            <a style="font-family:'Source Sans Pro',sans-serif;font-size:30px;" href="/">Demo</a>
+            <a style="font-family:'Source Sans Pro',sans-serif;font-size:30px;" href="/details">Details</a>
+            <a style="font-family:'Source Sans Pro',sans-serif;font-size:30px;" href="/about">About</a>
+          </div>
+        </div>
+        <span style="font-family:'Source Sans Pro',sans-serif;font-size:30px;cursor:pointer" onclick="openNav()">&#9776; Menu</span>
+        <div class="wrapper typo" style="text-align: center">
+          {% if identity == "homer" %}
+          <img src="{{ url_for('static', filename = 'images/homer.jpg') }}" height="100" width="100">
+          {% elif identity == "sherlock" %}
+          <img src="{{ url_for('static', filename = 'images/sherlock.jpg') }}" height="100" width="100">
+          {% endif %}
+          <span>{{ context }}<span>
+          <div class="list">
+            {% if sentences|length > 0 %}
+            {% if sentences[0]["words"]|length > 0 %}
+            <span class="placeholder" style="opacity: 1;">{{ sentences[0]["words"][0] }}</span>
+            {% endif %}
+            {% endif %}
+            <ul class="list__ul" style="display: none;">
+            {% for sentence in sentences %}
+              <li id="{{ sentence['index'] }}"><a href="">{{ sentence["words"][0] }}</a></li>
+            {% endfor %}
+            </ul>
+          </div>
+          {% if sentences|length > 0 %}
+          {% if sentences[0]["words"]|length > 0 %}
+          <span id="postfixText">{{ sentences[0]["words"][1:]|join(" ") }}</span>
+          {% endif %}
+          {% endif %}
+        </div>
+        <p><center><label style="color:black;">Elmar Langholz (langholz [at] gmail.com)</label></center></p>
+        <script type="text/javascript">
+          var el = {};
+          $('.placeholder').on('click', function (ev) {
+            $('.placeholder').css('opacity', '0');
+            $('.list__ul').toggle();
+          });
+
+          $('.list__ul a').on('click', function (ev) {
+            ev.preventDefault();
+            var index = $(this).parent().index();
+
+            $('.placeholder').text( $(this).text() ).css('opacity', '1');
+            var item = $('.list__ul').find('li').eq(index)
+            var predictionIndex = Number(item.attr("id"))
+            console.log(item.html());
+
+            var sentence = sentences.find(createFindSentenceFunctor(predictionIndex))
+            var postfixText = ""
+            for (var wordIndex = 1; wordIndex < sentence["words"].length; wordIndex++) {
+              var word = sentence["words"][wordIndex]
+              postfixText += " " + word
+            }
+
+            $("#postfixText").text(postfixText)
+            console.log(postfixText)
+            $('.list__ul').find('li').eq(index).prependTo('.list__ul');
+            $('.list__ul').toggle();   
+           
+          });
+
+          $('select').on('change', function (e) {
+            $('.placeholder').text(this.value);
+            $(this).animate({width: $('.placeholder').width() + 'px' });
+          });
+        </script>
+        <script>
+            function openNav() {
+                document.getElementById("overlayMenu").style.height = "100%";
+            }
+
+            function closeNav() {
+                document.getElementById("overlayMenu").style.height = "0%";
+            }
+        </script>
+    </body>
+</html>
